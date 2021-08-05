@@ -33,6 +33,7 @@
 	"dependencies": {
 		"acorn": "^8.4.1",
 		"acorn-walk": "^8.1.1",
+		"argparse": "^2.0.1",
 		"fp-ts": "^2.11.1"
 	}
 }
