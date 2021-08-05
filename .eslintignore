@@ -1,0 +1,7 @@
+node_modules
+docs/*
+*.md
+.git
+.vscode
+dist/*
+examples
