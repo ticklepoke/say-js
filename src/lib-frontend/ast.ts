@@ -9,7 +9,7 @@ import {
 	ArrowFunctionExpression,
 	MethodDefinition,
 } from 'estree';
-import { panic } from './macros';
+import { panic } from '../utils/macros';
 
 type ExtendedNode = acorn.Node & {
 	attributes?: {
