@@ -39,3 +39,31 @@ export function isNewExpression(node: ExtendedNode): node is n.NewExpression {
 export function isProperty(node: ExtendedNode): node is n.Property {
 	return node.type === 'Property';
 }
+
+export function isCatchClause(node: ExtendedNode): node is n.CatchClause {
+	return node.type === 'CatchClause';
+}
+
+export function isThisExpression(node: ExtendedNode): node is n.ThisExpression {
+	return node.type === 'ThisExpression';
+}
+
+export function isMemberExpression(node: ExtendedNode): node is n.MemberExpression {
+	return node.type === 'MemberExpression';
+}
+
+export function isVariableDeclarator(node: ExtendedNode): node is n.VariableDeclarator {
+	return node.type === 'VariableDeclarator';
+}
+
+export function isObjectPattern(node: ExtendedNode): node is n.ObjectPattern {
+	return node.type === 'ObjectPattern';
+}
+
+export function isPropertyPattern(node: ExtendedNode): node is n.PropertyPattern {
+	return node.type === 'PropertyPattern';
+}
+
+export function isArrayPattern(node: ExtendedNode): node is n.ArrayPattern {
+	return node.type === 'ArrayPattern';
+}

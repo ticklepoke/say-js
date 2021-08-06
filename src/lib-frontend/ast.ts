@@ -4,6 +4,7 @@ import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
 import fs from 'fs';
 import { parse as recastParse } from 'recast';
+import SymbolTable from '../lib-ir/symbolTable';
 import { panic } from '../utils/macros';
 import { TSFixMe } from '../utils/types';
 import {
@@ -31,11 +32,12 @@ export type ExtendedNode = n.Node & {
 		enclosingFile?: TSFixMe;
 		parent?: ExtendedNode;
 		childPropName?: string;
+		scope?: SymbolTable;
 	};
 };
 
 // For use when extending a specific AST node
-type ExtendedNodeT<T extends n.Node> = T & {
+export type ExtendedNodeT<T extends n.Node> = T & {
 	range?: [number, number];
 	attributes?: {
 		fileName?: string;
@@ -45,6 +47,7 @@ type ExtendedNodeT<T extends n.Node> = T & {
 		enclosingFile?: TSFixMe;
 		parent?: ExtendedNode;
 		childPropName?: string;
+		scope?: SymbolTable;
 	};
 };
 
@@ -128,6 +131,12 @@ export function astFromSrc(fileName: string, src: string): E.Either<SyntaxError,
 	return formattedAst;
 }
 
+// Markers to check if we are traversing specific branches
+type State = {
+	withinParams: boolean;
+	withinDeclarator: boolean;
+};
+
 /**
  * @function walk Traverses the AST recursively
  * @param root Entry point to traverse
@@ -141,11 +150,11 @@ export function walk(
 		traverse: (node: ExtendedNode, parent?: ExtendedNode) => void,
 		parent?: ExtendedNode,
 		childPropName?: string,
-		state?: TSFixMe
+		state?: State
 	) => boolean,
-	initialState?: TSFixMe
+	initialState?: State
 ): void {
-	function traverse(node: ExtendedNode, parent?: ExtendedNode, childPropName?: string, state?: TSFixMe) {
+	function traverse(node: ExtendedNode, parent?: ExtendedNode, childPropName?: string, state?: State) {
 		if (!node || typeof node !== 'object') return;
 
 		if (node.type) {

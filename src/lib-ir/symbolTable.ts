@@ -1,16 +1,15 @@
 import * as O from 'fp-ts/lib/Option';
 import { TSFixMe } from '../utils/types';
 
-// TODO: add type, pointer to outer scope
-type Outer = TSFixMe;
-
 export default class SymbolTable {
-	outerScope: Outer;
+	outerScope: SymbolTable | undefined;
+	global: boolean;
 	_values: Record<string, TSFixMe>;
 
-	constructor(outerScope: Outer) {
+	constructor(outerScope?: SymbolTable) {
 		this.outerScope = outerScope;
 		this._values = {};
+		this.global = false;
 	}
 
 	get(name: string): O.Option<TSFixMe> {
@@ -25,7 +24,7 @@ export default class SymbolTable {
 		return mangle(name) in this._values;
 	}
 
-	set(name: string, value: string): void {
+	set(name: string, value: TSFixMe): void {
 		this._values[mangle(name)] = value;
 	}
 
