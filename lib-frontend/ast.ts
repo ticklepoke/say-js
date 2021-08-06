@@ -1,23 +1,23 @@
 // Recast version of ast
 // TODO: if types work better, remove acorn and @types/estree
+import {
+	isFunctionExpression,
+	isProperty,
+	isFunctionDeclaration,
+	isArrowFunctionExpression,
+	isMethodDefinition,
+	isIdentifier,
+	isLiteral,
+	isCallExpression,
+	isNewExpression,
+} from '@lib-frontend/astTypes';
+import SymbolTable from '@lib-ir/symbolTable';
+import { panic } from '@utils/macros';
+import { TSFixMe } from '@utils/types';
 import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
 import fs from 'fs';
 import { parse as recastParse } from 'recast';
-import SymbolTable from '../lib-ir/symbolTable';
-import { panic } from '../utils/macros';
-import { TSFixMe } from '../utils/types';
-import {
-	isArrowFunctionExpression,
-	isCallExpression,
-	isFunctionDeclaration,
-	isFunctionExpression,
-	isIdentifier,
-	isLiteral,
-	isMethodDefinition,
-	isNewExpression,
-	isProperty,
-} from './astTypes';
 
 /**
  * @type ExtendedNode Adds extra metadata to be used for parsing. Extends ast-types::Node.

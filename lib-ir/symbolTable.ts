@@ -1,5 +1,5 @@
+import { TSFixMe } from '@utils/types';
 import * as O from 'fp-ts/lib/Option';
-import { TSFixMe } from '../utils/types';
 
 export default class SymbolTable {
 	outerScope: SymbolTable | undefined;

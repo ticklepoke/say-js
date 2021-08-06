@@ -4,7 +4,7 @@
 'use strict';
 
 const { ArgumentParser } = require('argparse');
-const { version } = require('../../package.json');
+const { version } = require('../package.json');
 
 const usage = './callgraph.js [options] inputFile [, inputFiles]';
 

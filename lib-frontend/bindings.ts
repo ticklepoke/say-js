@@ -1,20 +1,20 @@
 /* eslint-disable no-fallthrough */
-import { namedTypes as n } from 'ast-types';
-import SymbolTable from '../lib-ir/symbolTable';
-import { ExtendedNodeT, ProgramCollection, walk } from './ast';
+import { ProgramCollection, walk, ExtendedNodeT } from '@lib-frontend/ast';
 import {
-	isArrayPattern,
-	isArrowFunctionExpression,
-	isCatchClause,
 	isFunctionDeclaration,
 	isFunctionExpression,
+	isArrowFunctionExpression,
 	isIdentifier,
+	isCatchClause,
+	isThisExpression,
 	isMemberExpression,
+	isVariableDeclarator,
 	isObjectPattern,
 	isProperty,
-	isThisExpression,
-	isVariableDeclarator,
-} from './astTypes';
+	isArrayPattern,
+} from '@lib-frontend/astTypes';
+import SymbolTable from '@lib-ir/symbolTable';
+import { namedTypes as n } from 'ast-types';
 
 // Populates symbol table lexically
 export function addBindings(ast: ProgramCollection): void {

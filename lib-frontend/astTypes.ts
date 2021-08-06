@@ -1,8 +1,8 @@
 /**
  * @module astTypes provide type narrowing predicates from ExtendedNode to namedTyped
  */
+import { ExtendedNode } from '@lib-frontend/ast';
 import { namedTypes as n } from 'ast-types';
-import { ExtendedNode } from './ast';
 
 export function isFunctionExpression(node: ExtendedNode): node is n.FunctionExpression {
 	return node.type === 'FunctionExpression';
