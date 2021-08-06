@@ -1,60 +1,95 @@
-import { parse as acornParse } from 'acorn';
-import fs from 'fs';
+// Recast version of ast
+// TODO: if types work better, remove acorn and @types/estree
+import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
-import {
-	FunctionExpression,
-	Property,
-	Literal,
-	FunctionDeclaration,
-	ArrowFunctionExpression,
-	MethodDefinition,
-} from 'estree';
+import fs from 'fs';
+import { parse as recastParse } from 'recast';
 import { panic } from '../utils/macros';
+import { TSFixMe } from '../utils/types';
+import {
+	isArrowFunctionExpression,
+	isCallExpression,
+	isFunctionDeclaration,
+	isFunctionExpression,
+	isIdentifier,
+	isLiteral,
+	isMethodDefinition,
+	isNewExpression,
+	isProperty,
+} from './astTypes';
 
-type ExtendedNode = acorn.Node & {
+/**
+ * @type ExtendedNode Adds extra metadata to be used for parsing. Extends ast-types::Node.
+ */
+export type ExtendedNode = n.Node & {
+	range?: [number, number];
 	attributes?: {
 		fileName?: string;
-		functions?: unknown[];
-		calls?: unknown[];
-		enclosingFunction?: unknown;
-		enclosingFile?: unknown;
+		functions?: TSFixMe[];
+		calls?: TSFixMe[];
+		enclosingFunction?: TSFixMe;
+		enclosingFile?: TSFixMe;
 		parent?: ExtendedNode;
 		childPropName?: string;
 	};
 };
 
-type ProgramCollection = {
-	type: string;
-	programs: ExtendedNode[];
-	attributes: {
+// For use when extending a specific AST node
+type ExtendedNodeT<T extends n.Node> = T & {
+	range?: [number, number];
+	attributes?: {
 		fileName?: string;
-		functions?: unknown[];
-		calls?: unknown[];
-		enclosingFunction?: unknown;
-		enclosingFile?: unknown;
+		functions?: TSFixMe[];
+		calls?: TSFixMe[];
+		enclosingFunction?: TSFixMe;
+		enclosingFile?: TSFixMe;
+		parent?: ExtendedNode;
+		childPropName?: string;
 	};
 };
 
-function parse(src: string) {
+/**
+ * @type ProgramCollection A custom top level node that holds programs from multiple files
+ */
+export type ProgramCollection = n.Node &
+	ExtendedNode & {
+		type: string;
+		programs: ExtendedNode[];
+	};
+
+/**
+ * @function parse A higher order wrapper around recast's parse function. Provides sane default options and wraps the resulting AST in an algebraic Either
+ * @param src Source code to be parsed
+ * @returns Either an ES compliant AST or an error
+ */
+export function parse(src: string): E.Either<SyntaxError, n.Node> {
 	try {
-		const node = acornParse(src, {
-			ecmaVersion: 'latest',
-			sourceType: 'module',
-			locations: true,
-			ranges: true,
+		const ast: n.Node = recastParse(src, {
+			range: true,
 		});
-		return E.right(node);
+		return E.right(ast);
 	} catch (e) {
-		return E.left(e as SyntaxError);
+		return E.left(e);
 	}
 }
 
+/**
+ * @function buildProgram appends filenames to each AST node
+ * @param fileName filename that AST is generated from
+ * @param src source code in the file
+ * @returns annotated AST
+ */
 function buildProgram(fileName: string, src: string) {
 	const program = parse(src);
-	return E.map((obj: acorn.Node) => ({ ...obj, attributes: { fileName } }))(program);
+	return E.map((obj: n.Node) => ({ ...obj, attributes: { fileName } }))(program);
 }
 
-export function astFromFiles(files: string[]): E.Either<never, ProgramCollection> {
+/**
+ * @function astFromFiles creates a collection of ASTs from individual files
+ * @param files Input file to generate
+ * @returns Either formatted AST or error
+ */
+export function astFromFiles(files: string[]): E.Either<SyntaxError, ProgramCollection> {
 	const formattedAst: ProgramCollection = {
 		type: 'ProgramCollection',
 		programs: [],
@@ -64,7 +99,9 @@ export function astFromFiles(files: string[]): E.Either<never, ProgramCollection
 	for (const f of files) {
 		const src = fs.readFileSync(f, 'utf-8');
 		const program = buildProgram(f, src);
-		if (E.isRight(program)) {
+		if (E.isLeft(program)) {
+			return program;
+		} else {
 			formattedAst.programs.push(program.right);
 		}
 	}
@@ -72,10 +109,16 @@ export function astFromFiles(files: string[]): E.Either<never, ProgramCollection
 	return E.right(formattedAst);
 }
 
+/**
+ * @function astFromSrc creates an AST from a single filename
+ * @param fileName file to parse
+ * @param src source code of file
+ * @returns Either formatted AST or error
+ */
 export function astFromSrc(fileName: string, src: string): E.Either<SyntaxError, ProgramCollection> {
 	const program = buildProgram(fileName, src);
 
-	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map((program: acorn.Node) => ({
+	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map((program: n.Node) => ({
 		type: 'ProgramCollection',
 		programs: [program],
 		attributes: {},
@@ -85,20 +128,28 @@ export function astFromSrc(fileName: string, src: string): E.Either<SyntaxError,
 	return formattedAst;
 }
 
-function walk(
+/**
+ * @function walk Traverses the AST recursively
+ * @param root Entry point to traverse
+ * @param callback A visitor function to execute on each node
+ * @param initialState State to track the traversal
+ */
+export function walk(
 	root: ExtendedNode,
 	callback: (
 		node: ExtendedNode,
 		traverse: (node: ExtendedNode, parent?: ExtendedNode) => void,
 		parent?: ExtendedNode,
-		childPropName?: string
-	) => boolean
-) {
-	function traverse(node: ExtendedNode, parent?: ExtendedNode, childPropName?: string) {
+		childPropName?: string,
+		state?: TSFixMe
+	) => boolean,
+	initialState?: TSFixMe
+): void {
+	function traverse(node: ExtendedNode, parent?: ExtendedNode, childPropName?: string, state?: TSFixMe) {
 		if (!node || typeof node !== 'object') return;
 
 		if (node.type) {
-			const res = callback(node, traverse, parent, childPropName);
+			const res = callback(node, traverse, parent, childPropName, state);
 			if (!res) return;
 		}
 
@@ -111,12 +162,19 @@ function walk(
 			traverse((node as never)[propName], node, propName);
 		}
 	}
-	traverse(root);
+	traverse(root, undefined, undefined, initialState);
 }
 
+/**
+ * @function preProcess PreProcesses the AST by adding enclosing file names and functions to each node
+ * @param root ProgramCollection
+ */
 function preProcess(root: ProgramCollection) {
-	let enclosingFunction: acorn.Node;
+	let enclosingFunction: n.Node;
 	let enclosingFile: string | undefined;
+	if (!root.attributes) {
+		root.attributes = {};
+	}
 	root.attributes.functions = [];
 	root.attributes.calls = [];
 
@@ -136,54 +194,49 @@ function preProcess(root: ProgramCollection) {
 				enclosingFile = node.attributes.fileName;
 			}
 
-			if (node.type === 'FunctionExpression' && parent?.type === 'Property') {
-				const _parent = parent as unknown as Property;
-				const _node = node as unknown as FunctionExpression;
-
-				if (!_parent.computed) {
-					if (_parent.key.type === 'Identifier') {
-						_node.id = _parent.key;
-					} else if (_parent.key.type === 'Literal') {
-						const _key = _parent.key as Literal;
-						_node.id = {
+			if (isFunctionExpression(node) && parent && isProperty(parent)) {
+				if (!parent.computed) {
+					if (parent.key.type === 'Identifier') {
+						node.id = parent.key;
+					} else if (parent.key.type === 'Literal') {
+						node.id = {
 							type: 'Identifier',
-							name: _key.value?.toString() ?? 'Unknown Name',
-							range: _key.range,
-							loc: _key.loc,
-						};
+							name: parent.key.value?.toString() ?? 'Unknown Name',
+							range: (parent.key as ExtendedNode).range,
+							loc: parent.key.loc,
+						} as n.Identifier;
 					} else {
 						panic('Invalid syntax: Unexpected key type on Property');
 					}
 				}
 			}
 
-			if (
-				node.type === 'FunctionDeclaration' ||
-				node.type === 'FunctionExpression' ||
-				node.type === 'ArrowFunctionExpression'
-			) {
-				root.attributes.functions?.push(node);
-				node.attributes.parent = parent;
-				node.attributes.childPropName = childPropName;
-				const prevEnclosingFn = enclosingFunction;
-				enclosingFunction = node;
-				{
-					const _node = node as unknown as FunctionDeclaration | FunctionExpression;
-					_node.id && traverse(_node.id as unknown as ExtendedNode);
+			if (isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
+				root.attributes?.functions?.push(node);
+				const extendedNode = node as ExtendedNodeT<typeof node>;
+				if (extendedNode.attributes === undefined) {
+					extendedNode.attributes = {};
 				}
-				const _node = node as unknown as FunctionDeclaration | FunctionExpression | ArrowFunctionExpression;
-				traverse(_node.params as unknown as ExtendedNode);
-				traverse(_node.body as unknown as ExtendedNode);
+				extendedNode.attributes.parent = parent;
+				extendedNode.attributes.childPropName = childPropName;
+				const prevEnclosingFn = enclosingFunction;
+				enclosingFunction = extendedNode;
+				if (!isArrowFunctionExpression(node)) {
+					traverse(extendedNode.id as ExtendedNode);
+				}
+				for (const p of extendedNode.params) {
+					traverse(p as ExtendedNode);
+				}
+				traverse(extendedNode.body as ExtendedNode);
 				enclosingFunction = prevEnclosingFn;
 				return false;
 			}
 
-			if (node.type === 'MethodDefinition') {
-				const _node = node as unknown as MethodDefinition;
-				if (!_node.computed) {
-					if (_node.key.type === 'Identifier') {
-						_node.value.id = _node.key;
-					} else if (_node.key.type === 'Literal') {
+			if (isMethodDefinition(node)) {
+				if (!node.computed) {
+					if (isIdentifier(node.key)) {
+						node.value.id = node.key;
+					} else if (isLiteral(node.key)) {
 						panic('Invalid syntax: Method name cannot be literal');
 					} else {
 						panic('Invalid syntax: Unexpected key type for MethodDefinition');
@@ -193,8 +246,8 @@ function preProcess(root: ProgramCollection) {
 				}
 			}
 
-			if (node.type === 'CallExpression' || node.type === 'NewExpression') {
-				root.attributes.calls?.push(node);
+			if (isCallExpression(node) || isNewExpression(node)) {
+				root.attributes!.calls?.push(node);
 			}
 			return true;
 		});
