@@ -100,3 +100,41 @@ export function isArrayPattern(node: ExtendedNode): node is n.ArrayPattern {
 export function isFunctionType(node: ExtendedNode): node is FunctionType {
 	return isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node);
 }
+
+export function isAssignmentExpression(node: ExtendedNode): node is n.AssignmentExpression {
+	return node.type === 'AssignmentExpression';
+}
+
+export function isBlockStatement(node: ExtendedNode): node is n.BlockStatement {
+	return node.type === 'BlockStatement';
+}
+
+export function isReturnStatement(node: ExtendedNode): node is n.ReturnStatement {
+	return node.type === 'ReturnStatement';
+}
+
+// Non type related utils below
+
+function isAnon(functionName: string) {
+	return functionName === 'anon';
+}
+
+function isModuleExports(node: n.Node): boolean {
+	if (!isAssignmentExpression(node)) {
+		return false;
+	}
+
+	const { left } = node;
+
+	if (!isMemberExpression(left)) {
+		return false;
+	}
+
+	const { object, property } = left;
+
+	if (!isIdentifier(object) || !isIdentifier(property)) {
+		return false;
+	}
+
+	return object.name === 'module' && property.name === 'exports';
+}
