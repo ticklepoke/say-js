@@ -4,6 +4,10 @@
 import { ExtendedNode } from '@lib-frontend/ast';
 import { namedTypes as n } from 'ast-types';
 
+export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.ArrowFunctionExpression;
+
+export type CallType = n.CallExpression | n.NewExpression;
+
 export function isFunctionExpression(node: ExtendedNode): node is n.FunctionExpression {
 	return node.type === 'FunctionExpression';
 }
@@ -66,4 +70,8 @@ export function isPropertyPattern(node: ExtendedNode): node is n.PropertyPattern
 
 export function isArrayPattern(node: ExtendedNode): node is n.ArrayPattern {
 	return node.type === 'ArrayPattern';
+}
+
+export function isFunctionType(node: ExtendedNode): node is FunctionType {
+	return isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node);
 }

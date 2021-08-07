@@ -1,10 +1,13 @@
 // Recast version of ast
 // TODO: if types work better, remove acorn and @types/estree
 import {
+	CallType,
+	FunctionType,
 	isArrowFunctionExpression,
 	isCallExpression,
 	isFunctionDeclaration,
 	isFunctionExpression,
+	isFunctionType,
 	isIdentifier,
 	isLiteral,
 	isMethodDefinition,
@@ -13,42 +16,34 @@ import {
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { panic } from '@utils/macros';
-import { TSFixMe } from '@utils/types';
 import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
 import fs from 'fs';
 import { parse as recastParse } from 'recast';
+
+type Attributes = {
+	fileName: string;
+	functions: FunctionType[];
+	calls: CallType[];
+	enclosingFunction: FunctionType;
+	enclosingFile: string;
+	parent: ExtendedNode;
+	childPropName: string;
+	scope: SymbolTable;
+};
 
 /**
  * @type ExtendedNode Adds extra metadata to be used for parsing. Extends ast-types::Node.
  */
 export type ExtendedNode = n.Node & {
 	range?: [number, number];
-	attributes?: {
-		fileName?: string;
-		functions?: TSFixMe[];
-		calls?: TSFixMe[];
-		enclosingFunction?: TSFixMe;
-		enclosingFile?: TSFixMe;
-		parent?: ExtendedNode;
-		childPropName?: string;
-		scope?: SymbolTable;
-	};
+	attributes?: Partial<Attributes>;
 };
 
 // For use when extending a specific AST node
 export type ExtendedNodeT<T extends n.Node> = T & {
 	range?: [number, number];
-	attributes?: {
-		fileName?: string;
-		functions?: TSFixMe[];
-		calls?: TSFixMe[];
-		enclosingFunction?: TSFixMe;
-		enclosingFile?: TSFixMe;
-		parent?: ExtendedNode;
-		childPropName?: string;
-		scope?: SymbolTable;
-	};
+	attributes?: Partial<Attributes>;
 };
 
 /**
@@ -192,7 +187,7 @@ function preProcess(root: ProgramCollection) {
 			if (!node.attributes) {
 				node.attributes = {};
 			}
-			if (enclosingFunction) {
+			if (enclosingFunction && isFunctionType(enclosingFunction)) {
 				node.attributes.enclosingFunction = enclosingFunction;
 			}
 			if (enclosingFile) {

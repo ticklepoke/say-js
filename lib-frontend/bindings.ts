@@ -32,7 +32,7 @@ export function addBindings(ast: ProgramCollection): void {
 				};
 			}
 			if (isFunctionDeclaration(node)) {
-				if (node.id) {
+				if (node.id && isIdentifier(node.id)) {
 					declaredScope.set(node.id.name, node.id);
 					traverse(node.id);
 				}
@@ -51,7 +51,7 @@ export function addBindings(ast: ProgramCollection): void {
 					}
 					_node.attributes.scope = currScope;
 
-					if (_node.id) {
+					if (_node.id && isIdentifier(_node.id)) {
 						declaredScope.set(_node.id.name, _node.id);
 						traverse(_node.id);
 					}
@@ -107,10 +107,8 @@ export function addBindings(ast: ProgramCollection): void {
 			if (isCatchClause(node)) {
 				currScope = new SymbolTable(currScope);
 				currScope.global = false;
-				{
-					const { param } = node;
-					// @ts-expect-error name does not exist
-					param.name && currScope.set(param.name, node.param);
+				if (node.param && isIdentifier(node.param)) {
+					currScope.set(node.param.name, node.param);
 				}
 
 				node.param && traverse(node.param);
