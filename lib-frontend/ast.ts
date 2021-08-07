@@ -1,8 +1,7 @@
 // Recast version of ast
-// TODO: if types work better, remove acorn and @types/estree
 import {
-	CallType,
-	FunctionType,
+	ExtendedNode,
+	ExtendedNodeT,
 	isArrowFunctionExpression,
 	isCallExpression,
 	isFunctionDeclaration,
@@ -14,37 +13,11 @@ import {
 	isNewExpression,
 	isProperty,
 } from '@lib-frontend/astTypes';
-import SymbolTable from '@lib-ir/symbolTable';
 import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
 import fs from 'fs';
 import { parse as recastParse } from 'recast';
-
-type Attributes = {
-	fileName: string;
-	functions: FunctionType[];
-	calls: CallType[];
-	enclosingFunction: FunctionType;
-	enclosingFile: string;
-	parent: ExtendedNode;
-	childPropName: string;
-	scope: SymbolTable;
-};
-
-/**
- * @type ExtendedNode Adds extra metadata to be used for parsing. Extends ast-types::Node.
- */
-export type ExtendedNode = n.Node & {
-	range?: [number, number];
-	attributes?: Partial<Attributes>;
-};
-
-// For use when extending a specific AST node
-export type ExtendedNodeT<T extends n.Node> = T & {
-	range?: [number, number];
-	attributes?: Partial<Attributes>;
-};
 
 /**
  * @type ProgramCollection A custom top level node that holds programs from multiple files

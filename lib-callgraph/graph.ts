@@ -86,7 +86,7 @@ class BaseGraph {
 	}
 }
 
-export function nodeToString(node: TSFixMe): string {
+export function nodeToString(node: Node): string {
 	// TODO: depends on flow graph implementation
 	return 'noop';
 }
@@ -113,7 +113,7 @@ export class Graph {
 		this.graph.addNode(nodeToString(node));
 	}
 
-	addEdge(from: Node, to: Node, annotation?: TSFixMe): void {
+	addEdge(from: Node, to: Node, annotation?: Annotation): void {
 		this.addNode(from);
 		this.addNode(to);
 

@@ -1,4 +1,4 @@
-import { ExtendedNodeT } from '@lib-frontend/ast';
+import { ExtendedNodeT } from '@lib-frontend/astTypes';
 import { namedTypes as n } from 'ast-types';
 import * as O from 'fp-ts/lib/Option';
 

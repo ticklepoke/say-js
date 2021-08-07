@@ -1,8 +1,33 @@
 /**
  * @module astTypes provide type narrowing predicates from ExtendedNode to namedTyped
  */
-import { ExtendedNode } from '@lib-frontend/ast';
+import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
+
+type Attributes = {
+	fileName: string;
+	functions: FunctionType[];
+	calls: CallType[];
+	enclosingFunction: FunctionType;
+	enclosingFile: string;
+	parent: ExtendedNode;
+	childPropName: string;
+	scope: SymbolTable;
+};
+
+/**
+ * @type ExtendedNode Adds extra metadata to be used for parsing. Extends ast-types::Node.
+ */
+export type ExtendedNode = n.Node & {
+	range?: [number, number];
+	attributes?: Partial<Attributes>;
+};
+
+// For use when extending a specific AST node
+export type ExtendedNodeT<T extends n.Node> = T & {
+	range?: [number, number];
+	attributes?: Partial<Attributes>;
+};
 
 export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.ArrowFunctionExpression;
 

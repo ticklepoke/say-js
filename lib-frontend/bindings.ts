@@ -1,5 +1,5 @@
 /* eslint-disable no-fallthrough */
-import { ExtendedNodeT, ProgramCollection, walk } from '@lib-frontend/ast';
+import { ProgramCollection, walk } from '@lib-frontend/ast';
 import {
 	isArrayPattern,
 	isArrowFunctionExpression,
@@ -12,6 +12,7 @@ import {
 	isProperty,
 	isThisExpression,
 	isVariableDeclarator,
+	ExtendedNodeT,
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
