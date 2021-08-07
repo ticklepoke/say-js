@@ -1,9 +1,5 @@
-import path from 'path';
-import Driver from './driver/driver';
-import { astFromFiles } from './lib-frontend/ast';
+import Driver from '@driver/driver';
 
-// const ast = astFromFiles([path.resolve('./examples/classFunction.js')]);
+Driver.setFiles(['examples/simpleAdd.js']);
 
-//prettyPrint(ast);
-
-Driver.setFiles(['blah.js']);
+Driver.build();

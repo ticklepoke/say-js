@@ -1,17 +1,17 @@
 /* eslint-disable no-fallthrough */
-import { ProgramCollection, walk, ExtendedNodeT } from '@lib-frontend/ast';
+import { ExtendedNodeT, ProgramCollection, walk } from '@lib-frontend/ast';
 import {
+	isArrayPattern,
+	isArrowFunctionExpression,
+	isCatchClause,
 	isFunctionDeclaration,
 	isFunctionExpression,
-	isArrowFunctionExpression,
 	isIdentifier,
-	isCatchClause,
-	isThisExpression,
 	isMemberExpression,
-	isVariableDeclarator,
 	isObjectPattern,
 	isProperty,
-	isArrayPattern,
+	isThisExpression,
+	isVariableDeclarator,
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';

@@ -22,7 +22,7 @@ class ListNode<T> {
 	}
 }
 
-export class LinkedList<T> {
+export class LinkedList<T> implements Iterable<O.Option<T>> {
 	_head: O.Option<ListNode<T>>;
 	_size: number;
 
@@ -78,15 +78,16 @@ export class LinkedList<T> {
 		return this._size;
 	}
 
-	iter(): Iterator<ListNode<T>> {
-		let value: O.Option<ListNode<T>> = O.none;
+	// Adds an iterator "trait" to LinkedList
+	[Symbol.iterator](): Iterator<O.Option<T>> {
+		let node: O.Option<ListNode<T>> = O.none;
 		let current = this._head;
 		return {
 			next: () => {
 				if (O.isSome(current)) {
-					value = current;
+					node = current;
 					current = current.value.getNext();
-					return { value: value, done: false };
+					return { value: node.value.getElement(), done: false };
 				} else {
 					return { value: O.none, done: true };
 				}
@@ -94,10 +95,3 @@ export class LinkedList<T> {
 		};
 	}
 }
-
-type Iterator<T> = {
-	next: () => {
-		value: O.Option<T>;
-		done: boolean;
-	};
-};

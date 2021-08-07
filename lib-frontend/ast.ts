@@ -1,15 +1,15 @@
 // Recast version of ast
 // TODO: if types work better, remove acorn and @types/estree
 import {
-	isFunctionExpression,
-	isProperty,
-	isFunctionDeclaration,
 	isArrowFunctionExpression,
-	isMethodDefinition,
+	isCallExpression,
+	isFunctionDeclaration,
+	isFunctionExpression,
 	isIdentifier,
 	isLiteral,
-	isCallExpression,
+	isMethodDefinition,
 	isNewExpression,
+	isProperty,
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { panic } from '@utils/macros';

@@ -1,10 +1,12 @@
-import path from 'path';
-import fs from 'fs';
-import { panic } from '../utils/macros';
-import { collectFiles } from '../utils/files';
-import { astFromFiles } from '../lib-frontend/ast';
+import { astFromFiles } from '@lib-frontend/ast';
+import { addBindings } from '@lib-frontend/bindings';
+import { collectFiles } from '@utils/files';
+import { panic } from '@utils/macros';
+import { TSFixMe } from '@utils/types';
 import * as E from 'fp-ts/lib/Either';
-import { addBindings } from '../lib-frontend/bindings';
+import fs from 'fs';
+import path from 'path';
+import { prettyPrint } from 'recast';
 
 export default class Driver {
 	static files: string[] = [];
@@ -24,8 +26,7 @@ export default class Driver {
 		}
 	}
 
-	// TODO: return type
-	static build(): unknown[] {
+	static build(): TSFixMe[] {
 		const ast = astFromFiles(Driver.files);
 
 		if (E.isLeft(ast)) {
@@ -33,6 +34,8 @@ export default class Driver {
 		}
 
 		E.map(addBindings)(ast);
+
+		// E.isRight(ast) && prettyPrint(ast.right);
 
 		// TODO: build call graph
 
