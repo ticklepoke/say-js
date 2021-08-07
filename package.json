@@ -7,8 +7,8 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "lint": "eslint src/**/*.ts",
-        "lint:fix": "eslint --fix src/**/*.ts",
+        "lint": "eslint ./**/*.ts",
+        "lint:fix": "eslint --fix ./**/*.ts",
         "test": "jest",
         "dev": "ts-node -r tsconfig-paths/register index.ts",
         "deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts"

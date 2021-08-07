@@ -6,7 +6,6 @@ import { TSFixMe } from '@utils/types';
 import * as E from 'fp-ts/lib/Either';
 import fs from 'fs';
 import path from 'path';
-import { prettyPrint } from 'recast';
 
 export default class Driver {
 	static files: string[] = [];
