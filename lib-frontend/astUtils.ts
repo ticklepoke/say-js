@@ -137,7 +137,7 @@ function getReturnValues(node: FunctionType) {
 	return list;
 }
 
-function prettyPrintPosition(node: ExtendedNode) {
+export function prettyPrintPosition(node: ExtendedNode): string {
 	const filename = node.attributes?.enclosingFile ?? 'Invalid_File';
 	const startLine = node.loc?.start.line ?? 'Invalid_Start_Line';
 	const rangeStart = node.range ? node.range[0] : 'Invalid_Range_Start';

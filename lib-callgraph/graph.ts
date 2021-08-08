@@ -209,7 +209,7 @@ export class FlowGraph extends Graph {
 		this._fileToNode = {};
 	}
 
-	addEdge(from: Node, to: Node, annotation: Annotation): void {
+	addEdge(from: Node, to: Node, annotation?: Annotation): void {
 		super.addEdge(from, to, annotation);
 	}
 

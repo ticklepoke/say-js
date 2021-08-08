@@ -13,6 +13,40 @@ type Attributes = {
 	parent: ExtendedNode;
 	childPropName: string;
 	scope: SymbolTable;
+
+	// TODO: check if we should separate extended ast nodes from vertex nodes
+	variableVertex: Vertex;
+	functionVertex: FunctionVertex;
+	expressionVertex: Vertex;
+	returnVertex: Vertex;
+	calleeVertex: CalleeVertex;
+	resultVertex: Vertex;
+	receiverVertex: Vertex;
+	argumentVertex: Vertex;
+};
+
+type Vertex = {
+	type: string;
+	node: ExtendedNode;
+	attributes: {
+		prettyPrint: () => string;
+	};
+};
+
+type FunctionVertex = {
+	type: string;
+	function: ExtendedNodeT<FunctionType>;
+	attributes: {
+		prettyPrint: () => string;
+	};
+};
+
+type CalleeVertex = {
+	type: string;
+	call: ExtendedNodeT<n.CallExpression | n.NewExpression>;
+	attributes: {
+		prettyPrint: () => string;
+	};
 };
 
 /**
@@ -32,6 +66,8 @@ export type ExtendedNodeT<T extends n.Node> = T & {
 export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.ArrowFunctionExpression;
 
 export type CallType = n.CallExpression | n.NewExpression;
+
+// TODO: check if we should assert ExtendedNodeT instead, and can we make attributes non partial
 
 export function isFunctionExpression(node: ExtendedNode): node is n.FunctionExpression {
 	return node.type === 'FunctionExpression';
@@ -111,6 +147,38 @@ export function isBlockStatement(node: ExtendedNode): node is n.BlockStatement {
 
 export function isReturnStatement(node: ExtendedNode): node is n.ReturnStatement {
 	return node.type === 'ReturnStatement';
+}
+
+export function isArrayExpression(node: ExtendedNode): node is n.ArrayExpression {
+	return node.type === 'ArrayExpression';
+}
+
+export function isClassExpression(node: ExtendedNode): node is n.ClassExpression {
+	return node.type === 'ClassExpression';
+}
+
+export function isClassDeclaration(node: ExtendedNode): node is n.ClassDeclaration {
+	return node.type === 'ClassDeclaration';
+}
+
+export function isConditionalExpression(node: ExtendedNode): node is n.ConditionalExpression {
+	return node.type === 'ConditionalExpression';
+}
+
+export function isLogicalExpression(node: ExtendedNode): node is n.LogicalExpression {
+	return node.type === 'LogicalExpression';
+}
+
+export function isObjectExpression(node: ExtendedNode): node is n.ObjectExpression {
+	return node.type === 'ObjectExpression';
+}
+
+export function isSequenceExpression(node: ExtendedNode): node is n.SequenceExpression {
+	return node.type === 'SequenceExpression';
+}
+
+export function isThrowStatement(node: ExtendedNode): node is n.ThrowStatement {
+	return node.type === 'ThrowStatement';
 }
 
 // Non type related utils below

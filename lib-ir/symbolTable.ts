@@ -1,11 +1,10 @@
-import { ExtendedNodeT } from '@lib-frontend/astTypes';
-import { namedTypes as n } from 'ast-types';
+import { ExtendedNode } from '@lib-frontend/astTypes';
 import * as O from 'fp-ts/lib/Option';
 
 export default class SymbolTable {
 	outerScope: SymbolTable | undefined;
 	global: boolean;
-	_values: Record<string, ExtendedNodeT<n.Identifier>>;
+	_values: Record<string, ExtendedNode>;
 
 	constructor(outerScope?: SymbolTable) {
 		this.outerScope = outerScope;
@@ -13,7 +12,7 @@ export default class SymbolTable {
 		this.global = false;
 	}
 
-	get(name: string): O.Option<ExtendedNodeT<n.Identifier>> {
+	get(name: string): O.Option<ExtendedNode> {
 		const mangledName = mangle(name);
 		if (this.has(name)) {
 			return O.some(this._values[mangledName]);
@@ -25,11 +24,11 @@ export default class SymbolTable {
 		return mangle(name) in this._values;
 	}
 
-	set(name: string, value: ExtendedNodeT<n.Identifier>): void {
+	set(name: string, value: ExtendedNode): void {
 		this._values[mangle(name)] = value;
 	}
 
-	get values(): ExtendedNodeT<n.Identifier>[] {
+	get values(): ExtendedNode[] {
 		return Object.keys(this.values)
 			.filter(isMangled)
 			.map((key) => this._values[key]);
