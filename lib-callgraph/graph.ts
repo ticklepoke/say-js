@@ -1,4 +1,6 @@
 import { LinkedList } from '@lib-calllgraph/linkedList';
+import { Vertex } from '@lib-calllgraph/vertex';
+import { ExtendedNode } from '@lib-frontend/astTypes';
 import { panic } from '@utils/macros';
 import { TSFixMe } from '@utils/types';
 import * as O from 'fp-ts/lib/Option';
@@ -86,16 +88,14 @@ class BaseGraph {
 	}
 }
 
-export function nodeToString(node: Node): string {
-	// TODO: depends on flow graph implementation
-	return 'noop';
+export function nodeToString(node: Vertex): string {
+	return node.attributes.prettyPrint();
 }
 
-type Node = TSFixMe;
 type Annotation = TSFixMe;
 export class Graph {
 	graph: BaseGraph;
-	nodePairings: { [key: string]: Node };
+	nodePairings: { [key: string]: Vertex };
 	edgeAnnotations: { [key: string]: Annotation };
 
 	constructor() {
@@ -104,7 +104,7 @@ export class Graph {
 		this.edgeAnnotations = {};
 	}
 
-	addNode(node: Node): void {
+	addNode(node: Vertex): void {
 		if (this.hasNode(node)) {
 			return;
 		}
@@ -113,7 +113,7 @@ export class Graph {
 		this.graph.addNode(nodeToString(node));
 	}
 
-	addEdge(from: Node, to: Node, annotation?: Annotation): void {
+	addEdge(from: Vertex, to: Vertex, annotation?: Annotation): void {
 		this.addNode(from);
 		this.addNode(to);
 
@@ -124,7 +124,7 @@ export class Graph {
 		}
 	}
 
-	addEdges(from: Node, tos: Node[], annotations?: Annotation[]): void {
+	addEdges(from: Vertex, tos: Vertex[], annotations?: Annotation[]): void {
 		for (let i = 0; i < tos.length; i++) {
 			if (annotations) {
 				this.addEdge(from, tos[i], annotations[i]);
@@ -134,11 +134,11 @@ export class Graph {
 		}
 	}
 
-	hasEdge(from: Node, to: Node): boolean {
+	hasEdge(from: Vertex, to: Vertex): boolean {
 		return this.graph.succ(nodeToString(from)).has(nodeToString(to));
 	}
 
-	succ(node: Node): Node[] {
+	succ(node: Vertex): Vertex[] {
 		const succ = this.graph.succ(nodeToString(node));
 		const succList = [];
 		for (const s of succ) {
@@ -149,11 +149,11 @@ export class Graph {
 		return succList;
 	}
 
-	hasNode(node: Node): boolean {
+	hasNode(node: Vertex): boolean {
 		return nodeToString(node) in this.nodePairings;
 	}
 
-	removeEdge(from: Node, to: Node): boolean {
+	removeEdge(from: Vertex, to: Vertex): boolean {
 		if (this.hasNode(from) && this.hasNode(to) && this.hasEdge(from, to)) {
 			this.graph.removeEdge(nodeToString(from), nodeToString(to));
 			return true;
@@ -161,7 +161,7 @@ export class Graph {
 		return false;
 	}
 
-	removeNode(node: Node): boolean {
+	removeNode(node: Vertex): boolean {
 		if (this.hasNode(node)) {
 			this.graph.removeNode(nodeToString(node));
 			delete this.nodePairings[nodeToString(node)];
@@ -170,7 +170,7 @@ export class Graph {
 		return false;
 	}
 
-	iter(callback: (u: Node, v: Node) => void): void {
+	iter(callback: (u: Vertex, v: Vertex) => void): void {
 		const nodes = this.graph.nodes();
 		for (const u of nodes) {
 			for (const v of this.graph.succ(u)) {
@@ -183,14 +183,14 @@ export class Graph {
 		}
 	}
 
-	iterNodes(callback: (n: Node) => void): void {
+	iterNodes(callback: (n: Vertex) => void): void {
 		const nodes = this.graph.nodes();
 		for (const node of nodes) {
 			callback(this.nodePairings[node]);
 		}
 	}
 
-	getNodes(): Node[] {
+	getNodes(): Vertex[] {
 		const nodes = this.graph.nodes();
 		const out = [];
 		for (const n of nodes) {
@@ -200,25 +200,47 @@ export class Graph {
 	}
 }
 
-// function getEnclosingFile(node: TSFixMe) {}
+function getEnclosingFile(node: ExtendedNode) {
+	/* eslint-disable no-prototype-builtins */
+	/* eslint-disable @typescript-eslint/no-explicit-any */
+	if (node.hasOwnProperty('node')) {
+		return (node as any).node.attributes.enclosingFile;
+	}
+	if (node.hasOwnProperty('call')) {
+		return (node as any).call.attributes.enclosingFile;
+	}
+	if (node.hasOwnProperty('func')) {
+		return (node as any).func.attributes.enclosingFile;
+	}
+	return null;
+}
 
 export class FlowGraph extends Graph {
-	_fileToNode: { [key: string]: Set<TSFixMe> };
+	_fileToNodes: { [key: string]: Set<Vertex> };
 	constructor() {
 		super();
-		this._fileToNode = {};
+		this._fileToNodes = {};
 	}
 
-	addEdge(from: Node, to: Node, annotation?: Annotation): void {
+	addEdge(from: Vertex, to: Vertex, annotation?: Annotation): void {
 		super.addEdge(from, to, annotation);
 	}
 
-	// TODO: _updateFileToNodes() {}
+	_updateFileToNodes(node: Vertex): void {
+		const enclosingFile = getEnclosingFile(node);
+		if (!enclosingFile) {
+			return;
+		}
+		if (!(enclosingFile in this._fileToNodes)) {
+			this._fileToNodes[enclosingFile] = new Set();
+		}
+		this._fileToNodes[enclosingFile].add(node);
+	}
 
 	removeNodesInFile(fileName: string): void {
-		if (fileName in this._fileToNode) {
-			for (const fileGrouNode of this._fileToNode[fileName]) {
-				super.removeNode(fileGrouNode);
+		if (fileName in this._fileToNodes) {
+			for (const fileGroupNode of this._fileToNodes[fileName]) {
+				super.removeNode(fileGroupNode);
 			}
 		} else {
 			panic('FlowGraph: fileName does not exist in state');

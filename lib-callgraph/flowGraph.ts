@@ -1,4 +1,5 @@
 import { FlowGraph } from '@lib-calllgraph/graph';
+import { Vertex } from '@lib-calllgraph/vertex';
 import { walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,
@@ -34,7 +35,6 @@ import {
 import { createExtendedNode, createExtendedNodeT, prettyPrintPosition } from '@lib-frontend/astUtils';
 import SymbolTable from '@lib-ir/symbolTable';
 import { panic } from '@utils/macros';
-import { TSFixMe } from '@utils/types';
 import { namedTypes as n } from 'ast-types';
 import * as O from 'fp-ts/lib/Option';
 
@@ -173,7 +173,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 	return flowGraph;
 }
 
-function getVertexForNodeType(node: ExtendedNode | n.Node): TSFixMe {
+function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
 	const _node = createExtendedNode(node);
 	if (isIdentifier(_node)) {
 		if (!_node.attributes?.scope) {
@@ -218,9 +218,9 @@ function getVertexForNodeType(node: ExtendedNode | n.Node): TSFixMe {
 }
 
 // Singleton global cache of property vertices
-const propertyVertices = new SymbolTable();
+const propertyVertices = new SymbolTable<Vertex>();
 
-function propertyVertex(node: n.Identifier | n.Literal) {
+function propertyVertex(node: n.Identifier | n.Literal): Vertex {
 	let prop = '';
 	if (isIdentifier(node)) {
 		prop = node.name;
@@ -233,7 +233,7 @@ function propertyVertex(node: n.Identifier | n.Literal) {
 
 	const propVertex = propertyVertices.get(prop);
 	if (O.isSome(propVertex)) {
-		return propVertex;
+		return propVertex.value;
 	}
 	const newPropVertex = {
 		type: 'PropertyVertex',
@@ -246,7 +246,7 @@ function propertyVertex(node: n.Identifier | n.Literal) {
 	return newPropVertex;
 }
 
-function variableVertex(node: ExtendedNodeT<n.Identifier>) {
+function variableVertex(node: ExtendedNodeT<n.Identifier>): Vertex {
 	if (!node.attributes) {
 		node.attributes = {};
 	}
@@ -264,9 +264,9 @@ function variableVertex(node: ExtendedNodeT<n.Identifier>) {
 }
 
 // Singleton global cache of global vertices
-const globalVertices = new SymbolTable();
+const globalVertices = new SymbolTable<Vertex>();
 
-function globalVertex(node: n.Identifier | n.Literal) {
+function globalVertex(node: n.Identifier | n.Literal): Vertex {
 	let prop = '';
 	if (isIdentifier(node)) {
 		prop = node.name;
@@ -278,7 +278,7 @@ function globalVertex(node: n.Identifier | n.Literal) {
 
 	const globalVertex = globalVertices.get(prop);
 	if (O.isSome(globalVertex)) {
-		return globalVertex;
+		return globalVertex.value;
 	}
 	const newGlobalVertex = {
 		type: 'GlobalVertex',
@@ -291,7 +291,7 @@ function globalVertex(node: n.Identifier | n.Literal) {
 	return newGlobalVertex;
 }
 
-function expressionVertex(node: ExtendedNodeT<n.Node>) {
+function expressionVertex(node: ExtendedNodeT<n.Node>): Vertex {
 	if (!node.attributes) {
 		node.attributes = {};
 	}
@@ -309,7 +309,7 @@ function expressionVertex(node: ExtendedNodeT<n.Node>) {
 	}
 }
 
-function functionVertex(fn: ExtendedNodeT<FunctionType>) {
+function functionVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
 	if (!fn.attributes) {
 		fn.attributes = {};
 	}
@@ -329,12 +329,12 @@ function functionVertex(fn: ExtendedNodeT<FunctionType>) {
 	}
 }
 
-const nativeVertices = new SymbolTable();
+const nativeVertices = new SymbolTable<Vertex>();
 
 /**
  * @function nativeVertex creates a vertex for native functions
  */
-export function nativeVertex(name: string): ExtendedNode {
+export function nativeVertex(name: string): Vertex {
 	const nativeVertex = nativeVertices.get(name);
 	if (O.isSome(nativeVertex)) {
 		return nativeVertex.value;
@@ -358,7 +358,7 @@ export function getNativeVertices(): ExtendedNode[] {
 /**
  * @function unknownVertex handles vertices that are not currently supported
  */
-function unknownVertex() {
+function unknownVertex(): Vertex {
 	return {
 		type: 'UnknownVertex',
 		attributes: {
@@ -367,24 +367,25 @@ function unknownVertex() {
 	};
 }
 
-export function paramVertex(fn: ExtendedNodeT<FunctionType>, idx: number): TSFixMe {
+// @ts-expect-error Function will always return Vertex. Otherwise, it will crash
+export function paramVertex(fn: ExtendedNodeT<FunctionType>, idx: number): Vertex {
 	if (idx === 0) {
 		if (!fn.attributes?.scope) {
 			panic('Missing scope attributes');
-			return;
+		} else {
+			const varNode = fn.attributes.scope.get('this');
+			if (O.isNone(varNode) || !isIdentifier(varNode.value)) {
+				panic('Missing scope attributes: this');
+			} else {
+				return variableVertex(varNode.value);
+			}
 		}
-		const varNode = fn.attributes.scope.get('this');
-		if (O.isNone(varNode) || !isIdentifier(varNode.value)) {
-			panic('Missing scope attributes: this');
-			return;
-		}
-		return variableVertex(varNode.value);
 	} else {
 		return getVertexForNodeType(fn.params[idx - 1]);
 	}
 }
 
-function returnVertex(fn: ExtendedNodeT<FunctionType>) {
+function returnVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
 	if (!fn.attributes) {
 		fn.attributes = {};
 	}
@@ -401,7 +402,7 @@ function returnVertex(fn: ExtendedNodeT<FunctionType>) {
 	return fn.attributes.returnVertex;
 }
 
-function calleeVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>) {
+function calleeVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): Vertex {
 	if (!node.attributes) {
 		node.attributes = {};
 	}
@@ -415,13 +416,13 @@ function calleeVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>) {
 			prettyPrint: () => 'Ret(' + prettyPrintPosition(node) + ')',
 		},
 	};
-	return node.attributes.returnVertex;
+	return node.attributes.calleeVertex;
 }
 
 /**
  * ith argument at a call site, 0th argument is receiver
  */
-function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx: number) {
+function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx: number): Vertex {
 	if (idx === 0) {
 		if (!node.attributes) {
 			node.attributes = {};
@@ -436,6 +437,7 @@ function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx:
 				prettyPrint: () => 'Arg(' + prettyPrintPosition(node) + ', 0)',
 			},
 		};
+		return node.attributes.receiverVertex;
 	} else {
 		const _arg = node.arguments[idx - 1] as ExtendedNode;
 		if (!_arg.attributes) {
@@ -451,10 +453,11 @@ function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx:
 				prettyPrint: () => 'Arg(' + prettyPrintPosition(node) + ', ' + idx + ')',
 			},
 		};
+		return _arg.attributes.argumentVertex;
 	}
 }
 
-function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>) {
+function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): Vertex {
 	if (!node.attributes) {
 		node.attributes = {};
 	}

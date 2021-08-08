@@ -1,6 +1,7 @@
 /**
  * @module astTypes provide type narrowing predicates from ExtendedNode to namedTyped
  */
+import { CalleeVertex, FunctionVertex, NodeVertex } from '@lib-calllgraph/vertex';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
 
@@ -12,41 +13,17 @@ type Attributes = {
 	enclosingFile: string;
 	parent: ExtendedNode;
 	childPropName: string;
-	scope: SymbolTable;
+	scope: SymbolTable<ExtendedNode>;
 
-	// TODO: check if we should separate extended ast nodes from vertex nodes
-	variableVertex: Vertex;
+	// Pointers to vertex objects to be inserted into graphs
+	variableVertex: NodeVertex;
 	functionVertex: FunctionVertex;
-	expressionVertex: Vertex;
-	returnVertex: Vertex;
+	expressionVertex: NodeVertex;
+	returnVertex: NodeVertex;
 	calleeVertex: CalleeVertex;
-	resultVertex: Vertex;
-	receiverVertex: Vertex;
-	argumentVertex: Vertex;
-};
-
-type Vertex = {
-	type: string;
-	node: ExtendedNode;
-	attributes: {
-		prettyPrint: () => string;
-	};
-};
-
-type FunctionVertex = {
-	type: string;
-	function: ExtendedNodeT<FunctionType>;
-	attributes: {
-		prettyPrint: () => string;
-	};
-};
-
-type CalleeVertex = {
-	type: string;
-	call: ExtendedNodeT<n.CallExpression | n.NewExpression>;
-	attributes: {
-		prettyPrint: () => string;
-	};
+	resultVertex: NodeVertex;
+	receiverVertex: NodeVertex;
+	argumentVertex: NodeVertex;
 };
 
 /**
@@ -66,8 +43,6 @@ export type ExtendedNodeT<T extends n.Node> = T & {
 export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.ArrowFunctionExpression;
 
 export type CallType = n.CallExpression | n.NewExpression;
-
-// TODO: check if we should assert ExtendedNodeT instead, and can we make attributes non partial
 
 export function isFunctionExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.FunctionExpression> {
 	return node.type === 'FunctionExpression';

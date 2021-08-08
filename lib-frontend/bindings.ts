@@ -13,13 +13,14 @@ import {
 	isThisExpression,
 	isVariableDeclarator,
 	ExtendedNodeT,
+	ExtendedNode,
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
 
 // Populates symbol table lexically
 export function addBindings(ast: ProgramCollection): void {
-	const globalScope = new SymbolTable();
+	const globalScope = new SymbolTable<ExtendedNodeT<n.Literal | n.Identifier>>();
 	globalScope.global = true;
 	let currScope = globalScope;
 	let declaredScope = currScope;
@@ -41,7 +42,7 @@ export function addBindings(ast: ProgramCollection): void {
 
 			if (isFunctionExpression(node) || isArrowFunctionExpression(node)) {
 				const prevDeclaratedScope = declaredScope;
-				declaredScope = new SymbolTable(currScope);
+				declaredScope = new SymbolTable<ExtendedNodeT<n.Literal | n.Identifier>>(currScope);
 				currScope = declaredScope;
 				currScope.global = false;
 
@@ -64,7 +65,7 @@ export function addBindings(ast: ProgramCollection): void {
 						enclosingFile: node.attributes.enclosingFile,
 						scope: declaredScope,
 					},
-				} as ExtendedNodeT<n.Identifier>); // TODO: solve type assertion
+				});
 
 				state = {
 					...state,
