@@ -145,3 +145,14 @@ export function prettyPrintPosition(node: ExtendedNode): string {
 
 	return basename(filename) + '@' + startLine + ':' + rangeStart + '-' + rangeEnd;
 }
+
+export function createExtendedNode(node: n.Node | ExtendedNode): ExtendedNode {
+	return {
+		attributes: {},
+		...node,
+	};
+}
+
+export function createExtendedNodeT<T extends n.Node>(node: n.Node | ExtendedNode): ExtendedNodeT<T> {
+	return createExtendedNode(node) as ExtendedNodeT<T>; // Doing abit of handwaving here
+}

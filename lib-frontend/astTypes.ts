@@ -54,13 +54,13 @@ type CalleeVertex = {
  */
 export type ExtendedNode = n.Node & {
 	range?: [number, number];
-	attributes?: Partial<Attributes>;
+	attributes: Partial<Attributes>;
 };
 
 // For use when extending a specific AST node
 export type ExtendedNodeT<T extends n.Node> = T & {
 	range?: [number, number];
-	attributes?: Partial<Attributes>;
+	attributes: Partial<Attributes>;
 };
 
 export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.ArrowFunctionExpression;
@@ -69,115 +69,117 @@ export type CallType = n.CallExpression | n.NewExpression;
 
 // TODO: check if we should assert ExtendedNodeT instead, and can we make attributes non partial
 
-export function isFunctionExpression(node: ExtendedNode): node is n.FunctionExpression {
+export function isFunctionExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.FunctionExpression> {
 	return node.type === 'FunctionExpression';
 }
 
-export function isFunctionDeclaration(node: ExtendedNode): node is n.FunctionDeclaration {
+export function isFunctionDeclaration(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.FunctionDeclaration> {
 	return node.type === 'FunctionDeclaration';
 }
 
-export function isArrowFunctionExpression(node: ExtendedNode): node is n.ArrowFunctionExpression {
+export function isArrowFunctionExpression(
+	node: ExtendedNode | n.Node
+): node is ExtendedNodeT<n.ArrowFunctionExpression> {
 	return node.type === 'ArrowFunctionExpression';
 }
 
-export function isMethodDefinition(node: ExtendedNode): node is n.MethodDefinition {
+export function isMethodDefinition(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.MethodDefinition> {
 	return node.type === 'MethodDefinition';
 }
 
-export function isIdentifier(node: ExtendedNode): node is n.Identifier {
+export function isIdentifier(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.Identifier> {
 	return node.type === 'Identifier';
 }
 
-export function isLiteral(node: ExtendedNode): node is n.Literal {
+export function isLiteral(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.Literal> {
 	return node.type === 'Literal';
 }
 
-export function isCallExpression(node: ExtendedNode): node is n.CallExpression {
+export function isCallExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.CallExpression> {
 	return node.type === 'CallExpression';
 }
 
-export function isNewExpression(node: ExtendedNode): node is n.NewExpression {
+export function isNewExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.NewExpression> {
 	return node.type === 'NewExpression';
 }
 
-export function isProperty(node: ExtendedNode): node is n.Property {
+export function isProperty(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.Property> {
 	return node.type === 'Property';
 }
 
-export function isCatchClause(node: ExtendedNode): node is n.CatchClause {
+export function isCatchClause(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.CatchClause> {
 	return node.type === 'CatchClause';
 }
 
-export function isThisExpression(node: ExtendedNode): node is n.ThisExpression {
+export function isThisExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ThisExpression> {
 	return node.type === 'ThisExpression';
 }
 
-export function isMemberExpression(node: ExtendedNode): node is n.MemberExpression {
+export function isMemberExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.MemberExpression> {
 	return node.type === 'MemberExpression';
 }
 
-export function isVariableDeclarator(node: ExtendedNode): node is n.VariableDeclarator {
+export function isVariableDeclarator(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.VariableDeclarator> {
 	return node.type === 'VariableDeclarator';
 }
 
-export function isObjectPattern(node: ExtendedNode): node is n.ObjectPattern {
+export function isObjectPattern(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ObjectPattern> {
 	return node.type === 'ObjectPattern';
 }
 
-export function isPropertyPattern(node: ExtendedNode): node is n.PropertyPattern {
+export function isPropertyPattern(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.PropertyPattern> {
 	return node.type === 'PropertyPattern';
 }
 
-export function isArrayPattern(node: ExtendedNode): node is n.ArrayPattern {
+export function isArrayPattern(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ArrayPattern> {
 	return node.type === 'ArrayPattern';
 }
 
-export function isFunctionType(node: ExtendedNode): node is FunctionType {
+export function isFunctionType(node: ExtendedNode | n.Node): node is ExtendedNodeT<FunctionType> {
 	return isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node);
 }
 
-export function isAssignmentExpression(node: ExtendedNode): node is n.AssignmentExpression {
+export function isAssignmentExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.AssignmentExpression> {
 	return node.type === 'AssignmentExpression';
 }
 
-export function isBlockStatement(node: ExtendedNode): node is n.BlockStatement {
+export function isBlockStatement(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.BlockStatement> {
 	return node.type === 'BlockStatement';
 }
 
-export function isReturnStatement(node: ExtendedNode): node is n.ReturnStatement {
+export function isReturnStatement(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ReturnStatement> {
 	return node.type === 'ReturnStatement';
 }
 
-export function isArrayExpression(node: ExtendedNode): node is n.ArrayExpression {
+export function isArrayExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ArrayExpression> {
 	return node.type === 'ArrayExpression';
 }
 
-export function isClassExpression(node: ExtendedNode): node is n.ClassExpression {
+export function isClassExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ClassExpression> {
 	return node.type === 'ClassExpression';
 }
 
-export function isClassDeclaration(node: ExtendedNode): node is n.ClassDeclaration {
+export function isClassDeclaration(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ClassDeclaration> {
 	return node.type === 'ClassDeclaration';
 }
 
-export function isConditionalExpression(node: ExtendedNode): node is n.ConditionalExpression {
+export function isConditionalExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ConditionalExpression> {
 	return node.type === 'ConditionalExpression';
 }
 
-export function isLogicalExpression(node: ExtendedNode): node is n.LogicalExpression {
+export function isLogicalExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.LogicalExpression> {
 	return node.type === 'LogicalExpression';
 }
 
-export function isObjectExpression(node: ExtendedNode): node is n.ObjectExpression {
+export function isObjectExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ObjectExpression> {
 	return node.type === 'ObjectExpression';
 }
 
-export function isSequenceExpression(node: ExtendedNode): node is n.SequenceExpression {
+export function isSequenceExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.SequenceExpression> {
 	return node.type === 'SequenceExpression';
 }
 
-export function isThrowStatement(node: ExtendedNode): node is n.ThrowStatement {
+export function isThrowStatement(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ThrowStatement> {
 	return node.type === 'ThrowStatement';
 }
 
@@ -187,7 +189,7 @@ function isAnon(functionName: string) {
 	return functionName === 'anon';
 }
 
-function isModuleExports(node: n.Node): boolean {
+function isModuleExports(node: ExtendedNode): boolean {
 	if (!isAssignmentExpression(node)) {
 		return false;
 	}

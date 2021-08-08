@@ -45,29 +45,26 @@ export function addBindings(ast: ProgramCollection): void {
 				currScope = declaredScope;
 				currScope.global = false;
 
-				{
-					const _node = node as ExtendedNodeT<typeof node>;
-					if (!_node.attributes) {
-						_node.attributes = {};
-					}
-					_node.attributes.scope = currScope;
-
-					if (_node.id && isIdentifier(_node.id)) {
-						declaredScope.set(_node.id.name, _node.id);
-						traverse(_node.id);
-					}
-
-					declaredScope.set('this', {
-						type: 'Identifier',
-						name: 'this',
-						loc: _node.loc,
-						range: _node.range,
-						attributes: {
-							enclosingFile: _node.attributes.enclosingFile,
-							scope: declaredScope,
-						},
-					} as ExtendedNodeT<n.Identifier>);
+				if (!node.attributes) {
+					node.attributes = {};
 				}
+				node.attributes.scope = currScope;
+
+				if (node.id && isIdentifier(node.id)) {
+					declaredScope.set(node.id.name, node.id);
+					traverse(node.id);
+				}
+
+				declaredScope.set('this', {
+					type: 'Identifier',
+					name: 'this',
+					loc: node.loc,
+					range: node.range,
+					attributes: {
+						enclosingFile: node.attributes.enclosingFile,
+						scope: declaredScope,
+					},
+				} as ExtendedNodeT<n.Identifier>); // TODO: solve type assertion
 
 				state = {
 					...state,
@@ -84,20 +81,17 @@ export function addBindings(ast: ProgramCollection): void {
 				state.withinParams = false;
 				traverse(node.body);
 
-				{
-					const _node = node as ExtendedNodeT<typeof node>;
-					if (!declaredScope.has('arguments')) {
-						declaredScope.set('arguments', {
-							type: 'Identifier',
-							name: 'arguments',
-							loc: _node.loc,
-							range: _node.range,
-							attributes: {
-								enclosingFile: _node.attributes?.enclosingFile,
-								scope: declaredScope,
-							},
-						} as ExtendedNodeT<n.Identifier>);
-					}
+				if (!declaredScope.has('arguments')) {
+					declaredScope.set('arguments', {
+						type: 'Identifier',
+						name: 'arguments',
+						loc: node.loc,
+						range: node.range,
+						attributes: {
+							enclosingFile: node.attributes?.enclosingFile,
+							scope: declaredScope,
+						},
+					} as ExtendedNodeT<n.Identifier>);
 				}
 
 				currScope = currScope.outerScope!;
@@ -120,9 +114,8 @@ export function addBindings(ast: ProgramCollection): void {
 			}
 
 			if (isIdentifier(node) || isThisExpression(node)) {
-				const _node = node as ExtendedNodeT<typeof node>;
-				_node.attributes = {
-					..._node.attributes,
+				node.attributes = {
+					...node.attributes,
 					scope: declaredScope,
 				};
 				return true;

@@ -31,7 +31,7 @@ import {
 	isThrowStatement,
 	isVariableDeclarator,
 } from '@lib-frontend/astTypes';
-import { prettyPrintPosition } from '@lib-frontend/astUtils';
+import { createExtendedNode, createExtendedNodeT, prettyPrintPosition } from '@lib-frontend/astUtils';
 import SymbolTable from '@lib-ir/symbolTable';
 import { panic } from '@utils/macros';
 import { TSFixMe } from '@utils/types';
@@ -121,12 +121,14 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 		}
 		if (isReturnStatement(node)) {
 			if (node.argument) {
-				const _node = node as ExtendedNodeT<typeof node>;
-				if (!_node.attributes?.enclosingFunction) {
+				if (!node.attributes?.enclosingFunction) {
 					panic('Missing enclosing function');
 					return false;
 				}
-				flowGraph.addEdge(getVertexForNodeType(node.argument), returnVertex(_node.attributes.enclosingFunction));
+				flowGraph.addEdge(
+					getVertexForNodeType(node.argument),
+					returnVertex(createExtendedNodeT(node.attributes.enclosingFunction))
+				);
 			}
 			return false;
 		}
@@ -171,9 +173,9 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 	return flowGraph;
 }
 
-function getVertexForNodeType(node: ExtendedNode): TSFixMe {
-	if (isIdentifier(node)) {
-		const _node = node as ExtendedNodeT<typeof node>; // TODO: would be better if predicates return extendednode rather than native node
+function getVertexForNodeType(node: ExtendedNode | n.Node): TSFixMe {
+	const _node = createExtendedNode(node);
+	if (isIdentifier(_node)) {
 		if (!_node.attributes?.scope) {
 			panic('Missing scope in node');
 		}
@@ -184,19 +186,18 @@ function getVertexForNodeType(node: ExtendedNode): TSFixMe {
 			!decl.value.attributes.scope.global &&
 			isIdentifier(decl.value)
 			? variableVertex(decl.value)
-			: globalVertex(node);
+			: globalVertex(_node);
 	}
-	if (isThisExpression(node)) {
-		const _node = node as ExtendedNodeT<typeof node>;
+	if (isThisExpression(_node)) {
 		const decl = _node.attributes?.scope?.get('this');
-		return decl && O.isSome(decl) && isIdentifier(decl.value) ? variableVertex(decl.value) : expressionVertex(node);
+		return decl && O.isSome(decl) && isIdentifier(decl.value) ? variableVertex(decl.value) : expressionVertex(_node);
 	}
-	if (isClassExpression(node)) {
-		if (node.id) {
-			return getVertexForNodeType(node.id);
+	if (isClassExpression(_node)) {
+		if (_node.id) {
+			return getVertexForNodeType(_node.id);
 		}
 
-		const { body } = node.body;
+		const { body } = _node.body;
 
 		for (const b of body) {
 			if (isMethodDefinition(b)) {
@@ -206,14 +207,14 @@ function getVertexForNodeType(node: ExtendedNode): TSFixMe {
 			}
 		}
 	}
-	if (isMemberExpression(node)) {
-		if (!node.computed) {
-			if (isLiteral(node.property) || isIdentifier(node.property)) {
-				return propertyVertex(node.property);
+	if (isMemberExpression(_node)) {
+		if (!_node.computed) {
+			if (isLiteral(_node.property) || isIdentifier(_node.property)) {
+				return propertyVertex(_node.property);
 			}
 		}
 	}
-	return expressionVertex(node);
+	return expressionVertex(_node);
 }
 
 // Singleton global cache of property vertices

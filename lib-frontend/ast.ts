@@ -13,6 +13,7 @@ import {
 	isNewExpression,
 	isProperty,
 } from '@lib-frontend/astTypes';
+import { createExtendedNode } from '@lib-frontend/astUtils';
 import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
@@ -50,7 +51,7 @@ export function parse(src: string): E.Either<SyntaxError, n.Node> {
  * @param src source code in the file
  * @returns annotated AST
  */
-function buildProgram(fileName: string, src: string) {
+function buildProgram(fileName: string, src: string): E.Either<SyntaxError, ExtendedNode> {
 	const program = parse(src);
 	return E.map((obj: n.Node) => ({ ...obj, attributes: { fileName } }))(program);
 }
@@ -89,7 +90,7 @@ export function astFromFiles(files: string[]): E.Either<SyntaxError, ProgramColl
 export function astFromSrc(fileName: string, src: string): E.Either<SyntaxError, ProgramCollection> {
 	const program = buildProgram(fileName, src);
 
-	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map((program: n.Node) => ({
+	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map((program: ExtendedNode) => ({
 		type: 'ProgramCollection',
 		programs: [program],
 		attributes: {},
@@ -115,28 +116,29 @@ export function walk(
 	root: ExtendedNode,
 	callback: (
 		node: ExtendedNode,
-		traverse: (node: ExtendedNode, parent?: ExtendedNode) => void,
+		traverse: (node: ExtendedNode | n.Node, parent?: ExtendedNode) => void,
 		parent?: ExtendedNode,
 		childPropName?: string,
 		state?: State
 	) => boolean,
 	initialState?: State
 ): void {
-	function traverse(node: ExtendedNode, parent?: ExtendedNode, childPropName?: string, state?: State) {
+	function traverse(node: ExtendedNode | n.Node, parent?: ExtendedNode, childPropName?: string, state?: State) {
 		if (!node || typeof node !== 'object') return;
 
+		const _node = createExtendedNode(node);
 		if (node.type) {
-			const res = callback(node, traverse, parent, childPropName, state);
+			const res = callback(_node, traverse, parent, childPropName, state);
 			if (!res) return;
 		}
 
-		for (const propName in node) {
+		for (const propName in _node) {
 			// Ignore metadata and prototype
 			// eslint-disable-next-line no-prototype-builtins
 			if (!node.hasOwnProperty(propName) || propName.match(/^(range|loc|attributes|comments|raw)$/)) {
 				continue;
 			}
-			traverse((node as never)[propName], node, propName);
+			traverse((node as never)[propName], _node, propName);
 		}
 	}
 	traverse(root, undefined, undefined, initialState);
@@ -179,7 +181,7 @@ function preProcess(root: ProgramCollection) {
 						node.id = {
 							type: 'Identifier',
 							name: parent.key.value?.toString() ?? 'Unknown Name',
-							range: (parent.key as ExtendedNode).range,
+							range: createExtendedNode(parent.key).range,
 							loc: parent.key.loc,
 						} as n.Identifier;
 					} else {
@@ -190,21 +192,20 @@ function preProcess(root: ProgramCollection) {
 
 			if (isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
 				root.attributes?.functions?.push(node);
-				const extendedNode = node as ExtendedNodeT<typeof node>;
-				if (extendedNode.attributes === undefined) {
-					extendedNode.attributes = {};
+				if (node.attributes === undefined) {
+					node.attributes = {};
 				}
-				extendedNode.attributes.parent = parent;
-				extendedNode.attributes.childPropName = childPropName;
+				node.attributes.parent = parent;
+				node.attributes.childPropName = childPropName;
 				const prevEnclosingFn = enclosingFunction;
-				enclosingFunction = extendedNode;
+				enclosingFunction = node;
 				if (!isArrowFunctionExpression(node)) {
-					traverse(extendedNode.id as ExtendedNode);
+					traverse(node.id as ExtendedNode);
 				}
-				for (const p of extendedNode.params) {
-					traverse(p as ExtendedNode);
+				for (const p of node.params) {
+					traverse(createExtendedNode(p));
 				}
-				traverse(extendedNode.body as ExtendedNode);
+				traverse(node.body as ExtendedNode);
 				enclosingFunction = prevEnclosingFn;
 				return false;
 			}
