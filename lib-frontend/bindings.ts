@@ -13,7 +13,6 @@ import {
 	isThisExpression,
 	isVariableDeclarator,
 	ExtendedNodeT,
-	ExtendedNode,
 } from '@lib-frontend/astTypes';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
