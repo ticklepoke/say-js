@@ -243,7 +243,7 @@ export class FlowGraph extends Graph {
 				super.removeNode(fileGroupNode);
 			}
 		} else {
-			panic('FlowGraph: fileName does not exist in state');
+			panic('[Graph::removeNodesInFile] fileName does not exist in state');
 		}
 	}
 }

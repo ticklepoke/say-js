@@ -185,7 +185,7 @@ function preProcess(root: ProgramCollection) {
 							loc: parent.key.loc,
 						} as n.Identifier;
 					} else {
-						panic('Invalid syntax: Unexpected key type on Property');
+						panic('[Ast::preProcess] Invalid syntax: Unexpected key type on Property');
 					}
 				}
 			}
@@ -215,12 +215,12 @@ function preProcess(root: ProgramCollection) {
 					if (isIdentifier(node.key)) {
 						node.value.id = node.key;
 					} else if (isLiteral(node.key)) {
-						panic('Invalid syntax: Method name cannot be literal');
+						panic('[Ast::preProcess] Invalid syntax: Method name cannot be literal');
 					} else {
-						panic('Invalid syntax: Unexpected key type for MethodDefinition');
+						panic('[Ast::preProcess] Invalid syntax: Unexpected key type for MethodDefinition');
 					}
 				} else {
-					panic('Unimplemented: Computed keys for MethodDefinition');
+					panic('[Ast::preProcess] Unimplemented: Computed keys for MethodDefinition');
 				}
 			}
 

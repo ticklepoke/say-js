@@ -122,7 +122,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 		if (isReturnStatement(node)) {
 			if (node.argument) {
 				if (!node.attributes?.enclosingFunction) {
-					panic('Missing enclosing function');
+					panic('[FlowGraph::addIntraProceduralEdges] Missing enclosing function');
 					return false;
 				}
 				flowGraph.addEdge(
@@ -177,7 +177,7 @@ function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
 	const _node = createExtendedNode(node);
 	if (isIdentifier(_node)) {
 		if (!_node.attributes?.scope) {
-			panic('Missing scope in node');
+			panic('[FlowGraph::getVertexForNodeType] Missing scope in node');
 		}
 		const decl = _node.attributes?.scope?.get(_node.name);
 		return decl &&
@@ -228,7 +228,7 @@ function propertyVertex(node: n.Identifier | n.Literal): Vertex {
 		prop = node.value?.toString() ?? '';
 	} else {
 		// TODO: standardise error format
-		panic('Invalid property type');
+		panic('[FlowGraph::propertyVertex] Invalid property type');
 	}
 
 	const propVertex = propertyVertices.get(prop);
@@ -273,7 +273,7 @@ function globalVertex(node: n.Identifier | n.Literal): Vertex {
 	} else if (isLiteral(node)) {
 		prop = node.value?.toString() ?? '';
 	} else {
-		panic('Invalid global vertex type');
+		panic('[FlowGraph::globalVertex] Invalid global vertex type');
 	}
 
 	const globalVertex = globalVertices.get(prop);
@@ -371,11 +371,11 @@ function unknownVertex(): Vertex {
 export function paramVertex(fn: ExtendedNodeT<FunctionType>, idx: number): Vertex {
 	if (idx === 0) {
 		if (!fn.attributes?.scope) {
-			panic('Missing scope attributes');
+			panic('[FlowGraph::paramVertex] Missing scope attributes');
 		} else {
 			const varNode = fn.attributes.scope.get('this');
 			if (O.isNone(varNode) || !isIdentifier(varNode.value)) {
-				panic('Missing scope attributes: this');
+				panic('[FlowGraph::paramVertex] Missing scope attributes: this');
 			} else {
 				return variableVertex(varNode.value);
 			}

@@ -15,7 +15,7 @@ export default class Driver {
 		for (const filePath of fileList) {
 			const file = path.resolve(filePath);
 			if (!fs.existsSync(file)) {
-				panic(`File ${file} does not exist`);
+				panic(`[Driver::setFiles] File ${file} does not exist`);
 			} else if (fs.statSync(file).isDirectory()) {
 				const fileList = collectFiles(file, []);
 				Driver.files.push(...fileList);
@@ -29,7 +29,7 @@ export default class Driver {
 		const ast = astFromFiles(Driver.files);
 
 		if (E.isLeft(ast)) {
-			panic('Unable to build AST');
+			panic('[Driver::build] Unable to build AST');
 		}
 
 		E.map(addBindings)(ast);

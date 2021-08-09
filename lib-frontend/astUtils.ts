@@ -65,7 +65,7 @@ function getFunctions(root: ProgramCollection, src: string) {
 		const startLine = fnNode.loc?.start.line;
 		const endLine = fnNode.loc?.end.line;
 		if (!startLine || !endLine) {
-			panic('Startline or endline not available');
+			panic('[astUtils::getFunctions] Startline or endline not available');
 			return;
 		}
 
@@ -87,7 +87,7 @@ function getFunctions(root: ProgramCollection, src: string) {
 	console.assert(root.programs.length === 1);
 	const prog = root.programs[0];
 	if (!prog.loc) {
-		panic('loc is null');
+		panic('[astUtils::getFunctions] loc is null');
 		return;
 	}
 
