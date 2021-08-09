@@ -1,7 +1,6 @@
 // Recast version of ast
 import {
 	ExtendedNode,
-	ExtendedNodeT,
 	isArrowFunctionExpression,
 	isCallExpression,
 	isFunctionDeclaration,
@@ -35,14 +34,10 @@ export type ProgramCollection = n.Node &
  * @returns Either an ES compliant AST or an error
  */
 export function parse(src: string): E.Either<SyntaxError, n.Node> {
-	try {
-		const ast: n.Node = recastParse(src, {
-			range: true,
-		});
-		return E.right(ast);
-	} catch (e) {
-		return E.left(e);
-	}
+	return E.tryCatch(
+		() => recastParse(src, { range: true }) as n.Node,
+		(e) => e as SyntaxError
+	);
 }
 
 /**
