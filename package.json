@@ -11,9 +11,11 @@
         "lint:fix": "eslint --fix ./**/*.ts",
         "test": "jest",
         "dev": "ts-node -r tsconfig-paths/register index.ts",
-        "deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts"
+        "deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts",
+        "docs:diagrams:gen": "glob-run mmdc -i docs/diagrams/*.mmd"
     },
     "devDependencies": {
+        "@mermaid-js/mermaid-cli": "^8.11.0",
         "@types/node": "^16.4.13",
         "@typescript-eslint/eslint-plugin": "^4.29.0",
         "@typescript-eslint/parser": "^4.29.0",
@@ -21,6 +23,7 @@
         "eslint": "^7.32.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^3.4.0",
+        "glob-run": "^0.1.7",
         "husky": "^7.0.1",
         "jest": "^27.0.6",
         "lint-staged": "^11.1.1",
