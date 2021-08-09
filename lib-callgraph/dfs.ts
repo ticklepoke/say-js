@@ -13,10 +13,10 @@ function visit1(props: {
 	nodePredecessor: NodePred;
 	graph: Graph;
 	stringToReachId: { [key: string]: number };
-	m: Set<TSFixMe>[];
-	t: Set<TSFixMe>[];
+	m: Set<number>[];
+	t: Set<number>[];
 	popped: number[];
-	globl: Set<TSFixMe>;
+	globl: Set<number>;
 }) {
 	const { idx, enumNodes, visited, nodePredecessor, graph, stringToReachId, m, t, popped } = props;
 	let { globl } = props;
@@ -75,9 +75,9 @@ function visit2(props: {
 	nodePredecessor: NodePred;
 	graph: Graph;
 	stringToReachId: { [key: string]: number };
-	m: Set<TSFixMe>[];
-	t: Set<TSFixMe>[];
-	globl: Set<TSFixMe>;
+	m: Set<number>[];
+	t: Set<number>[];
+	globl: Set<number>;
 }) {
 	const { idx, enumNodes, visited2, nodePredecessor, graph, stringToReachId, m, t, globl } = props;
 	visited2[idx] = 1;
@@ -100,7 +100,7 @@ function visit2(props: {
 
 type NodePred = (...arg: any[]) => TSFixMe;
 type Reachability = {
-	getReachable: (s: Vertex) => TSFixMe[];
+	getReachable: (s: Vertex) => Vertex[];
 	iterReachable: (s: Vertex, cb: (n: Vertex) => void) => void;
 	reaches: (s: Vertex, d: Vertex) => boolean;
 };
@@ -115,9 +115,9 @@ export function makeReachability(graph: Graph, nodePredecessor: NodePred): Reach
 	const visited = new Array(N).fill(0);
 	const visited2 = new Array(N).fill(0);
 	const popped = new Array(N).fill(0);
-	const globl = new Set();
-	const m: Set<TSFixMe>[] = []; // TODO: find a better name
-	const t: Set<TSFixMe>[] = [];
+	const globl = new Set<number>();
+	const m: Set<number>[] = []; // TODO: find a better name
+	const t: Set<number>[] = [];
 
 	nodes.forEach((node, idx) => {
 		enumNodes.push(node);
