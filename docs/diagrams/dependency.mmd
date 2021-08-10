@@ -1,7 +1,9 @@
 graph TD
     A[Driver] --> B[lib-frontend]
+    B --> C
     A --> C[lib-ir]
     A --> D[lib-callgraph]
+    D --> C
     B --> E[utils]
     C --> E[utils]
     D --> E[utils]

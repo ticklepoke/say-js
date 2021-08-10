@@ -5,18 +5,32 @@ sequenceDiagram
     participant lib_callgraph
     autonumber
     Activate Driver
-    Driver->>+lib_frontend: astFromFiles(files)
+    Driver->>+lib_frontend: astFromFiles(files: string[])
     loop for file in files
         Activate lib_frontend
-        lib_frontend->>lib_frontend: buildProgram(file)
+        lib_frontend->>lib_frontend: buildProgram(file: string)
         Deactivate lib_frontend
     end
     Activate lib_frontend
-    lib_frontend->>lib_frontend: preProcess(ast)
+    lib_frontend->>lib_frontend: preProcess(ast: ESTree)
     Deactivate lib_frontend
-    lib_frontend-->>-Driver: ast
-    Driver->>+lib_frontend: addBindings(ast)
+    lib_frontend-->>-Driver: ast: ESTree
+    Driver->>+lib_frontend: addBindings(ast: ESTree)
     lib_frontend->>+lib_ir: new SymbolTable()
     lib_ir-->>-lib_frontend: symbolTable
-    lib_frontend-->>-Driver: ast
+    lib_frontend-->>-Driver: ast: ESTree
+    Driver->>+lib_callgraph: buildCallgraph(ast: ESTree)
+    Activate lib_callgraph
+    lib_callgraph->>lib_callgraph: addNativeFunctionEdges()
+    Deactivate lib_callgraph
+    Activate lib_callgraph
+    lib_callgraph->>lib_callgraph: addIntraProcedureEdges()
+    Deactivate lib_callgraph
+    Activate lib_callgraph
+    lib_callgraph->>lib_callgraph: addInterProcedureEdges()
+    Deactivate lib_callgraph
+    lib_callgraph-->>-Driver: ast: ESTree
+    Activate Driver
+    Driver->>Driver: writeJSON(fileName: string, ast: ESTree)
+    Deactivate Driver
     Deactivate Driver
