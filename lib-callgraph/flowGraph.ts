@@ -220,7 +220,7 @@ function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
 // Singleton global cache of property vertices
 const propertyVertices = new SymbolTable<Vertex>();
 
-function propertyVertex(node: n.Identifier | n.Literal): Vertex {
+export function propertyVertex(node: n.Identifier | n.Literal): Vertex {
 	let prop = '';
 	if (isIdentifier(node)) {
 		prop = node.name;
@@ -309,7 +309,7 @@ function expressionVertex(node: ExtendedNodeT<n.Node>): Vertex {
 	}
 }
 
-function functionVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
+export function functionVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
 	if (!fn.attributes) {
 		fn.attributes = {};
 	}
@@ -358,7 +358,7 @@ export function getNativeVertices(): ExtendedNode[] {
 /**
  * @function unknownVertex handles vertices that are not currently supported
  */
-function unknownVertex(): Vertex {
+export function unknownVertex(): Vertex {
 	return {
 		type: 'UnknownVertex',
 		attributes: {
@@ -385,7 +385,7 @@ export function paramVertex(fn: ExtendedNodeT<FunctionType>, idx: number): Verte
 	}
 }
 
-function returnVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
+export function returnVertex(fn: ExtendedNodeT<FunctionType>): Vertex {
 	if (!fn.attributes) {
 		fn.attributes = {};
 	}
@@ -422,7 +422,7 @@ function calleeVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): 
 /**
  * ith argument at a call site, 0th argument is receiver
  */
-function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx: number): Vertex {
+export function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx: number): Vertex {
 	if (idx === 0) {
 		if (!node.attributes) {
 			node.attributes = {};
@@ -457,7 +457,7 @@ function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>, idx:
 	}
 }
 
-function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): Vertex {
+export function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): Vertex {
 	if (!node.attributes) {
 		node.attributes = {};
 	}

@@ -3,7 +3,7 @@
  */
 import { Graph, nodeToString } from '@lib-calllgraph/graph';
 import { Vertex } from '@lib-calllgraph/vertex';
-import { TSFixMe } from '@utils/types';
+import { namedTypes as n } from 'ast-types';
 
 function visit1(props: {
 	idx: number;
@@ -98,7 +98,7 @@ function visit2(props: {
 	}
 }
 
-type NodePred = (...arg: any[]) => TSFixMe;
+type NodePred = (node: n.Node) => boolean;
 type Reachability = {
 	getReachable: (s: Vertex) => Vertex[];
 	iterReachable: (s: Vertex, cb: (n: Vertex) => void) => void;

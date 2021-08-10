@@ -8,6 +8,7 @@ export type Vertex = {
 	type: string;
 	attributes: {
 		prettyPrint: () => string;
+		ofInterest?: boolean;
 	};
 };
 

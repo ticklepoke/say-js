@@ -106,3 +106,5 @@ typings/
 .tern-port
 
 dist
+
+.DS_store
