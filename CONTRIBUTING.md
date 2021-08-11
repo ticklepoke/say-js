@@ -18,20 +18,30 @@ Callgraph-Generator is made of the following components:
 
 ### Dependency Structure
 
-![dep structure](./diagrams/dependency.png)
+![dep structure](./docs/diagrams/dependency.png)
 
 ### Sequence Diagram
 
 The following sequence diagram provides a high level, partial overview of the most important calls in callgraph-generator. Some lesser important calls have been deliberately left out to keep the sequence diagram readable. Lifelines in this diagram represent directory level components rather than individual classes.
 
-![sequence](./diagrams/sequence.png)
+![sequence](./docs/diagrams/sequence.png)
 
 ### [Driver](#)
 
+This library drives the callgraph generation process and is the only public interface. It has the longest activation as seen on the sequence diagram.
+
 ### [Frontend](#)
+
+This library converts input source code to an ESTree compliant AST, annotates enclosing files and functions, and generates symbol tables.
 
 ### [IR](#)
 
+The IR library provides symbol tables that behave like hashmaps to store the scopes that variables and functions occur in.
+
 ### [Callgraph](#)
 
+This library generates a flowgraph and callgraph.
+
 ### [Utils](#)
+
+This library provides general utilities.
