@@ -23,3 +23,20 @@ export type FunctionVertex = Vertex & {
 export type CalleeVertex = Vertex & {
 	call: ExtendedNodeT<n.CallExpression | n.NewExpression>;
 };
+
+export type NativeVertex = Vertex & {
+	name: string;
+};
+
+// Type narrowing utils below
+export function isCalleeVertex(v: Vertex): v is CalleeVertex {
+	return v.type === 'CalleeVertex';
+}
+
+export function isFunctionVertex(v: Vertex): v is FunctionVertex {
+	return v.type === 'FunctionVertex';
+}
+
+export function isNativeVertex(v: Vertex): v is NativeVertex {
+	return v.type === 'NativeVertex';
+}

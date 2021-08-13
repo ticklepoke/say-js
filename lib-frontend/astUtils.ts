@@ -19,7 +19,7 @@ function basename(filename: string) {
 	return filename.substring(idx + 1);
 }
 
-function functionName(fn: FunctionType) {
+export function functionName(fn: FunctionType): string {
 	if (!fn.id) {
 		return 'anon';
 	} else {
@@ -28,7 +28,7 @@ function functionName(fn: FunctionType) {
 }
 
 // TODO: check if enclosing fn should be Option type
-function enclosingFunctionName(enclosingFn: FunctionType | undefined) {
+export function enclosingFunctionName(enclosingFn: FunctionType | undefined): string {
 	if (!enclosingFn) {
 		return 'global';
 	} else if (!enclosingFn.id) {

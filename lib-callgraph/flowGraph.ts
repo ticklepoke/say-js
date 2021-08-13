@@ -1,5 +1,5 @@
 import { FlowGraph } from '@lib-calllgraph/graph';
-import { Vertex } from '@lib-calllgraph/vertex';
+import { NativeVertex, Vertex } from '@lib-calllgraph/vertex';
 import { walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,
@@ -339,7 +339,7 @@ export function nativeVertex(name: string): Vertex {
 	if (O.isSome(nativeVertex)) {
 		return nativeVertex.value;
 	} else {
-		const newVertex = {
+		const newVertex: NativeVertex = {
 			type: 'NativeVertex',
 			name,
 			attributes: {

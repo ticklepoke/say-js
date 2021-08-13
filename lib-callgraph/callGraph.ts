@@ -49,6 +49,7 @@ function extractCallGraph(ast: ExtendedNode, flowGraph: FlowGraph): CallGraphDat
 		}
 	});
 
+	// TODO: fix types, callback provides extended node, but we have vertex here
 	getNativeVertices().forEach(processFunctionVertex);
 	const unknownReach = reach.getReachable(unknownVertex());
 	unknownReach

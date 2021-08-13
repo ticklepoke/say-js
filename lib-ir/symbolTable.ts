@@ -1,4 +1,3 @@
-import { ExtendedNode } from '@lib-frontend/astTypes';
 import * as O from 'fp-ts/lib/Option';
 
 export default class SymbolTable<T> {
