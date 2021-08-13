@@ -1,10 +1,11 @@
-import { buildCallGraph } from '@lib-calllgraph/callGraph';
+import { buildCallGraph, CallGraphData } from '@lib-calllgraph/callGraph';
 import { astFromFiles } from '@lib-frontend/ast';
 import { addBindings } from '@lib-frontend/bindings';
 import { collectFiles } from '@utils/files';
 import { panic } from '@utils/macros';
 import { TSFixMe } from '@utils/types';
 import * as E from 'fp-ts/lib/Either';
+import { flow } from 'fp-ts/lib/function';
 import fs from 'fs';
 import path from 'path';
 
@@ -61,15 +62,33 @@ export default class Driver {
 			callGraph.right.edges.iter((call, fn) => {
 				result.push(Driver.buildBinding(call, fn));
 			});
-			// TODO: output call graph to json
 			// TODO: set output file in class
-			const outputFile = '';
-			Driver.writeJSON(outputFile ?? 'outputfile.json', result);
+			// const outputFile = '';
+			// Driver.writeJSON(outputFile ?? 'outputfile.json', result);
+		}
+
+		// FP Version
+		flow(
+			E.map(addBindings),
+			E.map(buildCallGraph),
+			E.map(collectEdges),
+			E.map(Driver.writeJSON('outputFile.json'))
+		)(ast);
+
+		function collectEdges(callGraph: CallGraphData) {
+			const result: Edge[] = [];
+			callGraph.edges.iter((call, fn) => {
+				result.push(Driver.buildBinding(call, fn));
+			});
+			return result;
 		}
 	}
 
-	private static writeJSON(filename: string, result: Edge[]) {
-		return;
+	// TODO: output call graph to json
+	private static writeJSON(filename: string) {
+		return function (result: Edge[]) {
+			return;
+		};
 	}
 
 	// TODO: build binding

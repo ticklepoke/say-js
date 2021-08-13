@@ -18,7 +18,7 @@ import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
 
 // Populates symbol table lexically
-export function addBindings(ast: ProgramCollection): void {
+export function addBindings(ast: ProgramCollection): ProgramCollection {
 	const globalScope = new SymbolTable<ExtendedNodeT<n.Literal | n.Identifier>>();
 	globalScope.global = true;
 	let currScope = globalScope;
@@ -180,4 +180,6 @@ export function addBindings(ast: ProgramCollection): void {
 		},
 		{ withinDeclarator: false, withinParams: false }
 	);
+
+	return ast;
 }

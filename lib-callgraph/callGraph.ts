@@ -16,7 +16,7 @@ import {
 import { FlowGraph, Graph } from './graph';
 import { CalleeVertex, Vertex } from './vertex';
 
-type CallGraphData = {
+export type CallGraphData = {
 	edges: Graph;
 	escaping: Vertex[];
 	unknown: Vertex[];
