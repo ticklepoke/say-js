@@ -60,7 +60,7 @@ export default class Driver {
 		if (E.isRight(callGraph)) {
 			const result: Edge[] = [];
 			callGraph.right.edges.iter((call, fn) => {
-				result.push(Driver.buildBinding(call, fn));
+				//result.push(Driver.buildBinding(call, fn));
 			});
 			// TODO: set output file in class
 			// const outputFile = '';
@@ -78,19 +78,21 @@ export default class Driver {
 		function collectEdges(callGraph: CallGraphData) {
 			const result: Edge[] = [];
 			callGraph.edges.iter((call, fn) => {
-				result.push(Driver.buildBinding(call, fn));
+				//result.push(Driver.buildBinding(call, fn));
 			});
 			return result;
 		}
 	}
 
-	// TODO: output call graph to json
 	private static writeJSON(filename: string) {
 		return function (result: Edge[]) {
-			return;
+			return E.tryCatch(
+				() => fs.writeFileSync(filename, JSON.stringify(result, null, 2)),
+				(e) => e
+			);
 		};
 	}
 
 	// TODO: build binding
-	private static buildBinding(u: Vertex, v: Vertex): Edge {}
+	//private static buildBinding(u: Vertex, v: Vertex): Edge {}
 }
