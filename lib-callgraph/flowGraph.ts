@@ -351,7 +351,7 @@ export function nativeVertex(name: string): Vertex {
 	}
 }
 
-export function getNativeVertices(): ExtendedNode[] {
+export function getNativeVertices(): Vertex[] {
 	return nativeVertices.values;
 }
 
