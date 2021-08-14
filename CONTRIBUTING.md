@@ -6,6 +6,17 @@ Callgraph-generator converts an ESTree compliant abstract syntax tree (AST) into
 
 Callgraph-generator is organised into separate components that depend on each other. The component structure follows a frontend (parser) - IR (intermediate representation) - backend (code generation) structure that many common compilers adopt.
 
+## TODO
+
+- [ ] babel
+- [ ] just use a webpack server?
+- [ ] semantic-release
+- [ ] default cli behaviour to print to console, otherwise print to file
+
+## Packaging
+
+For information on release and packaging, refer to [PACKAGING.md](./docs/PACKAGING.md).
+
 ## Components
 
 Callgraph-Generator is made of the following components:
@@ -30,7 +41,7 @@ The following sequence diagram provides a high level, partial overview of the mo
 
 This library drives the callgraph generation process and is the only public interface. It has the longest activation as seen on the sequence diagram.
 
-### [Frontend](#)
+### [Frontend](./docs/FRONTEND.md)
 
 This library converts input source code to an ESTree compliant AST, annotates enclosing files and functions, and generates symbol tables.
 
@@ -45,3 +56,7 @@ This library generates a flowgraph and callgraph.
 ### [Utils](#)
 
 This library provides general utilities.
+
+### [Programming Conventions](./docs/CONVENTIONS.md)
+
+Some extra programming conventions and paradigms used throughout this codebase.
