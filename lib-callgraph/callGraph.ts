@@ -16,7 +16,7 @@ import {
 	unknownVertex,
 } from './flowGraph';
 import { FlowGraph, Graph } from './graph';
-import { CalleeVertex, Vertex } from './vertex';
+import { isCalleeVertex, isFunctionVertex, Vertex } from './vertex';
 
 export type CallGraphData = {
 	edges: Graph;
@@ -46,7 +46,7 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 	};
 
 	flowGraph.iterNodes((n) => {
-		if (n.type === 'FunctionVertex') {
+		if (isFunctionVertex(n)) {
 			processFunctionVertex(n);
 		}
 	});
@@ -82,7 +82,7 @@ function addInterProcedureEdges(ast: ExtendedNode, flowGraph: FlowGraph) {
 			const res = resultVertex(createExtendedNodeT<CallType>(call));
 			if (!res.attributes.ofInterest) {
 				reach.iterReachable(res, (n) => {
-					if (n.type === 'CalleeVertex') {
+					if (isCalleeVertex(n)) {
 						res.attributes.ofInterest = true;
 					}
 				});
@@ -97,7 +97,7 @@ function addInterProcedureEdges(ast: ExtendedNode, flowGraph: FlowGraph) {
 				const param = paramVertex(createExtendedNodeT<FunctionType>(fn), i);
 				if (!param.attributes.ofInterest) {
 					reach.iterReachable(param, (n) => {
-						if (n.type === 'CalleeVertex') {
+						if (isCalleeVertex(n)) {
 							param.attributes.ofInterest = true;
 						}
 					});
@@ -106,8 +106,8 @@ function addInterProcedureEdges(ast: ExtendedNode, flowGraph: FlowGraph) {
 			}
 
 			reach.iterReachable(functionVertex(createExtendedNodeT<FunctionType>(fn)), (n) => {
-				if (n.type === 'CalleeVertex') {
-					const { call } = n as CalleeVertex; // TODO: solve type coercion
+				if (isCalleeVertex(n)) {
+					const { call } = n;
 					const res = resultVertex(call);
 
 					if (res.attributes.ofInterest) {

@@ -227,7 +227,6 @@ export function propertyVertex(node: n.Identifier | n.Literal): Vertex {
 	} else if (isLiteral(node)) {
 		prop = node.value?.toString() ?? '';
 	} else {
-		// TODO: standardise error format
 		panic('[FlowGraph::propertyVertex] Invalid property type');
 	}
 
