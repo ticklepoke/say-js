@@ -192,10 +192,6 @@ export function isImportNamespaceSpecifier(
 
 // Non type narrowing utils below
 
-function isAnon(functionName: string) {
-	return functionName === 'anon';
-}
-
 export function isModuleExports(node: ExtendedNode): boolean {
 	if (!isAssignmentExpression(node)) {
 		return false;

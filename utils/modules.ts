@@ -55,14 +55,6 @@ function addSrcToFile(impFunctions: ImpFunctions, fileName: string, srcFileName:
 	};
 }
 
-function rmFileFromExports(expFunctions: ExpFunctions, fileName: string) {
-	delete expFunctions[fileName];
-}
-
-function rmFileFromImports(impFunctions: ImpFunctions, fileName: string) {
-	delete impFunctions[fileName];
-}
-
 // Prevent imported / exported functions from colliding with prototype properties
 function mangle(fnName: string) {
 	return `$${fnName}`;

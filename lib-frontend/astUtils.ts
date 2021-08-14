@@ -1,13 +1,5 @@
 import { ProgramCollection } from '@lib-frontend/ast';
-import {
-	ExtendedNode,
-	ExtendedNodeT,
-	FunctionType,
-	isBlockStatement,
-	isCallExpression,
-	isIdentifier,
-	isReturnStatement,
-} from '@lib-frontend/astTypes';
+import { ExtendedNode, ExtendedNodeT, FunctionType, isBlockStatement, isReturnStatement } from '@lib-frontend/astTypes';
 import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 
@@ -52,59 +44,7 @@ function colonSepId(fn: FunctionObject) {
 	return fn.file + ':' + fn.name + ':' + fn.range[0] + ':' + fn.range[1] + ':' + (fn.charRange[1] - fn.charRange[0]);
 }
 
-function getFunctions(root: ProgramCollection, src: string) {
-	const fns: Partial<FunctionObject>[] = [];
-	const fnNodes = root.attributes?.functions;
-
-	if (!fnNodes) return;
-
-	for (const _fnNode of fnNodes) {
-		const fnNode = _fnNode as ExtendedNodeT<FunctionType>;
-		const fnName = functionName(fnNode);
-
-		const startLine = fnNode.loc?.start.line;
-		const endLine = fnNode.loc?.end.line;
-		if (!startLine || !endLine) {
-			panic('[astUtils::getFunctions] Startline or endline not available');
-			return;
-		}
-
-		fns.push({
-			name: fnName,
-			file: fnNode.attributes!.enclosingFile,
-			range: [startLine, endLine],
-			charRange: fnNode.range,
-			code: src.substring(fnNode.range![0], fnNode.range![1]),
-			enclosingFunctionName: enclosingFunctionName(fnNode.attributes!.enclosingFunction),
-			colonSepId: '',
-		});
-	}
-
-	// We know that fn is not partial
-	fns.map((fn) => (fn.colonSepId = colonSepId(fn as FunctionObject)));
-
-	// Create a dummy fn for global context
-	console.assert(root.programs.length === 1);
-	const prog = root.programs[0];
-	if (!prog.loc) {
-		panic('[astUtils::getFunctions] loc is null');
-		return;
-	}
-
-	fns.push({
-		name: 'global',
-		file: prog.attributes?.fileName,
-		range: [prog.loc.start.line, prog.loc.end.line],
-		charRange: undefined,
-		code: undefined,
-		enclosingFunctionName: undefined,
-		colonSepId: prog.attributes?.fileName + ':global',
-	});
-
-	return fns;
-}
-
-function getReturnValues(node: FunctionType) {
+export function getReturnValues(node: FunctionType): n.Node[] {
 	const list: n.Node[] = [];
 	const fnBody = node.body;
 
