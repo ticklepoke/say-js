@@ -158,13 +158,45 @@ export function isThrowStatement(node: ExtendedNode | n.Node): node is ExtendedN
 	return node.type === 'ThrowStatement';
 }
 
-// Non type related utils below
+export function isExportDefaultDeclaration(
+	node: ExtendedNode | n.Node
+): node is ExtendedNodeT<n.ExportDefaultDeclaration> {
+	return node.type === 'ExportDefaultDeclaration';
+}
+
+export function isExportAllDeclaration(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ExportAllDeclaration> {
+	return node.type === 'ExportAllDeclaration';
+}
+
+export function isExportNamedDeclaration(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ExportNamedDeclaration> {
+	return node.type === 'ExportNamedDeclaration';
+}
+
+export function isImportDeclaration(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ImportDeclaration> {
+	return node.type === 'ImportDeclaration';
+}
+
+export function isImportSpecifier(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ImportSpecifier> {
+	return node.type === 'ImportSpecifier';
+}
+
+export function isImportDefaultSpecifier(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ImportDefaultSpecifier> {
+	return node.type === 'ImportDefaultSpecifier';
+}
+
+export function isImportNamespaceSpecifier(
+	node: ExtendedNode | n.Node
+): node is ExtendedNodeT<n.ImportNamespaceSpecifier> {
+	return node.type === 'ImportNamespaceSpecifier';
+}
+
+// Non type narrowing utils below
 
 function isAnon(functionName: string) {
 	return functionName === 'anon';
 }
 
-function isModuleExports(node: ExtendedNode): boolean {
+export function isModuleExports(node: ExtendedNode): boolean {
 	if (!isAssignmentExpression(node)) {
 		return false;
 	}
@@ -182,4 +214,19 @@ function isModuleExports(node: ExtendedNode): boolean {
 	}
 
 	return object.name === 'module' && property.name === 'exports';
+}
+
+// Check if a node calls a function
+export function isCallTo(node: n.Node, fnName: string): boolean {
+	if (!isCallExpression(node)) {
+		return false;
+	}
+
+	const { callee } = node;
+
+	if (!isIdentifier(callee)) {
+		return false;
+	}
+
+	return callee.name === fnName;
 }

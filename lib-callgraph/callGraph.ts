@@ -1,5 +1,7 @@
+import { ProgramCollection } from '@lib-frontend/ast';
 import { CallType, ExtendedNode, FunctionType } from '@lib-frontend/astTypes';
 import { createExtendedNodeT } from '@lib-frontend/astUtils';
+import { collectExportsImports, connectImports } from '@utils/modules';
 import { addNativeFunctionEdges } from '@utils/natives';
 import { namedTypes as n } from 'ast-types';
 import { makeReachability } from './dfs';
@@ -23,7 +25,7 @@ export type CallGraphData = {
 	flowGraph: FlowGraph;
 };
 
-function extractCallGraph(ast: ExtendedNode, flowGraph: FlowGraph): CallGraphData {
+function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 	const edges = new Graph();
 	const escaping: Vertex[] = [];
 	const unknown: Vertex[] = [];
@@ -140,18 +142,17 @@ function addInterProcedureEdges(ast: ExtendedNode, flowGraph: FlowGraph) {
 	return flowGraph;
 }
 
-export function buildCallGraph(ast: ExtendedNode): CallGraphData {
+export function buildCallGraph(ast: ProgramCollection): CallGraphData {
 	const flowGraph = new FlowGraph();
 	addNativeFunctionEdges(flowGraph);
 	addIntraProcedureEdges(ast, flowGraph);
 
 	const expFunctions = {};
 	const impFunctions = {};
-	// TODO: collect export imports
-	// collectExportImports(ast, expFunctions, impFunctions)
-	// TODO: connect imports
-	// connectImports(flowGraph, expFunctions, impFunctions)
+
+	collectExportsImports(ast, expFunctions, impFunctions);
+	connectImports(flowGraph, expFunctions, impFunctions);
 
 	addInterProcedureEdges(ast, flowGraph);
-	return extractCallGraph(ast, flowGraph);
+	return extractCallGraph(flowGraph);
 }

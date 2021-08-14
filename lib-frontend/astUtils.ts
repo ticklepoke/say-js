@@ -104,22 +104,6 @@ function getFunctions(root: ProgramCollection, src: string) {
 	return fns;
 }
 
-// Check if a node calls a function
-// TODO: could extend this to check if a node references a var
-function isCallTo(node: n.Node, fnName: string): boolean {
-	if (!isCallExpression(node)) {
-		return false;
-	}
-
-	const { callee } = node;
-
-	if (!isIdentifier(callee)) {
-		return false;
-	}
-
-	return callee.name === fnName;
-}
-
 function getReturnValues(node: FunctionType) {
 	const list: n.Node[] = [];
 	const fnBody = node.body;

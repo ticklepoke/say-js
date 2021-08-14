@@ -173,7 +173,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 	return flowGraph;
 }
 
-function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
+export function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
 	const _node = createExtendedNode(node);
 	if (isIdentifier(_node)) {
 		if (!_node.attributes?.scope) {
