@@ -44,6 +44,10 @@ export type FunctionType = n.FunctionExpression | n.FunctionDeclaration | n.Arro
 
 export type CallType = n.CallExpression | n.NewExpression;
 
+export function isProgram(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.Program> {
+	return node.type === 'Program';
+}
+
 export function isFunctionExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.FunctionExpression> {
 	return node.type === 'FunctionExpression';
 }

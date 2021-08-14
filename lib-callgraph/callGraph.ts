@@ -39,7 +39,7 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 		r.forEach((node) => {
 			if (node.type === 'UnknownVertex') {
 				escaping.push(fn);
-			} else if (node.type === 'CalleeVertex') {
+			} else if (isCalleeVertex(node)) {
 				edges.addEdge(node, fn);
 			}
 		});

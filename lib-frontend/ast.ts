@@ -10,6 +10,7 @@ import {
 	isLiteral,
 	isMethodDefinition,
 	isNewExpression,
+	isProgram,
 	isProperty,
 } from '@lib-frontend/astTypes';
 import { createExtendedNode } from '@lib-frontend/astUtils';
@@ -164,15 +165,15 @@ function preProcess(root: ProgramCollection) {
 				node.attributes.enclosingFile = enclosingFile;
 			}
 
-			if (node.type === 'Program') {
+			if (isProgram(node)) {
 				enclosingFile = node.attributes.fileName;
 			}
 
 			if (isFunctionExpression(node) && parent && isProperty(parent)) {
 				if (!parent.computed) {
-					if (parent.key.type === 'Identifier') {
+					if (isIdentifier(parent.key)) {
 						node.id = parent.key;
-					} else if (parent.key.type === 'Literal') {
+					} else if (isLiteral(parent.key)) {
 						node.id = {
 							type: 'Identifier',
 							name: parent.key.value?.toString() ?? 'Unknown Name',
