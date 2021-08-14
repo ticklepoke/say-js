@@ -1,6 +1,4 @@
-import { ProgramCollection } from '@lib-frontend/ast';
 import { ExtendedNode, ExtendedNodeT, FunctionType, isBlockStatement, isReturnStatement } from '@lib-frontend/astTypes';
-import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 
 function basename(filename: string) {
@@ -28,20 +26,6 @@ export function enclosingFunctionName(enclosingFn: FunctionType | undefined): st
 	} else {
 		return enclosingFn.id.name;
 	}
-}
-
-type FunctionObject = {
-	name: string;
-	file: string;
-	range: [number, number];
-	charRange: [number, number];
-	code: string;
-	enclosingFunctionName: string;
-	colonSepId: string;
-};
-
-function colonSepId(fn: FunctionObject) {
-	return fn.file + ':' + fn.name + ':' + fn.range[0] + ':' + fn.range[1] + ':' + (fn.charRange[1] - fn.charRange[0]);
 }
 
 export function getReturnValues(node: FunctionType): n.Node[] {

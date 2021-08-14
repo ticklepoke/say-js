@@ -2,7 +2,6 @@ import { LinkedList } from '@lib-calllgraph/linkedList';
 import { Vertex } from '@lib-calllgraph/vertex';
 import { ExtendedNode } from '@lib-frontend/astTypes';
 import { panic } from '@utils/macros';
-import { TSFixMe } from '@utils/types';
 import * as O from 'fp-ts/lib/Option';
 
 class BaseGraph {
@@ -92,16 +91,13 @@ export function nodeToString(node: Vertex): string {
 	return node.attributes.prettyPrint();
 }
 
-type Annotation = TSFixMe;
 export class Graph {
 	graph: BaseGraph;
 	nodePairings: { [key: string]: Vertex };
-	edgeAnnotations: { [key: string]: Annotation };
 
 	constructor() {
 		this.graph = new BaseGraph();
 		this.nodePairings = {};
-		this.edgeAnnotations = {};
 	}
 
 	addNode(node: Vertex): void {
@@ -113,24 +109,16 @@ export class Graph {
 		this.graph.addNode(nodeToString(node));
 	}
 
-	addEdge(from: Vertex, to: Vertex, annotation?: Annotation): void {
+	addEdge(from: Vertex, to: Vertex): void {
 		this.addNode(from);
 		this.addNode(to);
 
 		this.graph.addEdge(nodeToString(from), nodeToString(to));
-
-		if (annotation) {
-			this.edgeAnnotations[nodeToString(from) + ' -> ' + nodeToString(to)] = annotation;
-		}
 	}
 
-	addEdges(from: Vertex, tos: Vertex[], annotations?: Annotation[]): void {
+	addEdges(from: Vertex, tos: Vertex[]): void {
 		for (let i = 0; i < tos.length; i++) {
-			if (annotations) {
-				this.addEdge(from, tos[i], annotations[i]);
-			} else {
-				this.addEdge(from, tos[i]);
-			}
+			this.addEdge(from, tos[i]);
 		}
 	}
 
@@ -222,8 +210,8 @@ export class FlowGraph extends Graph {
 		this._fileToNodes = {};
 	}
 
-	addEdge(from: Vertex, to: Vertex, annotation?: Annotation): void {
-		super.addEdge(from, to, annotation);
+	addEdge(from: Vertex, to: Vertex): void {
+		super.addEdge(from, to);
 	}
 
 	_updateFileToNodes(node: Vertex): void {

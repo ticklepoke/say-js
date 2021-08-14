@@ -5,7 +5,7 @@ import { enclosingFunctionName, functionName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';
 import { collectFiles } from '@utils/files';
 import { panic } from '@utils/macros';
-import { TSFixMe } from '@utils/types';
+import { RecursivePartial } from '@utils/types';
 import * as E from 'fp-ts/lib/Either';
 import { flow } from 'fp-ts/lib/function';
 import fs from 'fs';
@@ -15,17 +15,17 @@ import path from 'path';
  * For internal use, not to be confused with nodes in a graph
  */
 type Node = {
-	label: TSFixMe;
-	file: TSFixMe;
+	label: string;
+	file: string;
 	start: {
-		row: TSFixMe;
-		column: TSFixMe;
+		row: number;
+		column: number;
 	};
 	end: {
-		row: TSFixMe;
-		column: TSFixMe;
+		row: number;
+		column: number;
 	};
-	range: { start: TSFixMe; end: TSFixMe };
+	range: { start: number; end: number };
 };
 
 type Edge = {
@@ -62,7 +62,7 @@ export default class Driver {
 		)(ast);
 
 		function collectEdges(callGraph: CallGraphData) {
-			const result: Edge[] = [];
+			const result: RecursivePartial<Edge>[] = [];
 			callGraph.edges.iter((call, fn) => {
 				result.push(Driver.buildBinding(call, fn));
 			});
@@ -71,28 +71,28 @@ export default class Driver {
 	}
 
 	private static writeJSON(filename: string) {
-		return (result: Edge[]) =>
+		return (result: RecursivePartial<Edge>[]) =>
 			E.tryCatch(
 				() => fs.writeFileSync(filename, JSON.stringify(result, null, 2)),
 				(e) => e
 			);
 	}
 
-	private static buildBinding(u: Vertex, v: Vertex): Edge {
-		const edge: Edge = {
+	private static buildBinding(u: Vertex, v: Vertex): RecursivePartial<Edge> {
+		const edge = {
 			source: {
-				label: null,
-				file: null,
-				start: { row: null, column: null },
-				end: { row: null, column: null },
-				range: { start: null, end: null },
+				label: undefined,
+				file: undefined,
+				start: { row: undefined, column: undefined },
+				end: { row: undefined, column: undefined },
+				range: { start: undefined, end: undefined },
 			},
 			target: {
-				label: null,
-				file: null,
-				start: { row: null, column: null },
-				end: { row: null, column: null },
-				range: { start: null, end: null },
+				label: undefined,
+				file: undefined,
+				start: { row: undefined, column: undefined },
+				end: { row: undefined, column: undefined },
+				range: { start: undefined, end: undefined },
 			},
 		};
 
@@ -101,35 +101,45 @@ export default class Driver {
 		return edge;
 	}
 
-	private static populateNode(n: Node, v: Vertex): E.Either<string, Node> {
+	private static populateNode(n: RecursivePartial<Node>, v: Vertex): E.Either<string, RecursivePartial<Node>> {
 		if (isCalleeVertex(v)) {
 			const node = v.call;
-			n.label = enclosingFunctionName(node.attributes.enclosingFunction);
-			n.file = node.attributes.enclosingFile;
-			n.start = { row: node.loc?.start.line, column: node.loc?.start.column };
-			n.end = { row: node.loc?.end.line, column: node.loc?.end.column };
-			n.range = { start: node.range?.[0], end: node.range?.[1] };
-			return E.right(n);
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			const _n = n as Node;
+			_n.label = enclosingFunctionName(node.attributes.enclosingFunction);
+			_n.file = node.attributes.enclosingFile ?? '';
+			_n.start = { row: node.loc.start.line, column: node.loc.start.column };
+			_n.end = { row: node.loc.end.line, column: node.loc.end.column };
+			_n.range = { start: node.range[0], end: node.range[1] };
+			return E.right(_n);
 		}
 
 		if (isFunctionVertex(v)) {
 			const { function: fn } = v;
-			n.label = functionName(fn);
-			n.file = fn.attributes.enclosingFile;
-			n.start = { row: fn.loc?.start.line, column: fn.loc?.start.column };
-			n.end = { row: fn.loc?.end.line, column: fn.loc?.end.column };
-			n.range = { start: fn.range?.[0], end: fn.range?.[1] };
-			return E.right(n);
+			if (!fn.loc || !fn.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			const _n = n as Node;
+			_n.label = functionName(fn);
+			_n.file = fn.attributes.enclosingFile ?? '';
+			_n.start = { row: fn.loc.start.line, column: fn.loc.start.column };
+			_n.end = { row: fn.loc.end.line, column: fn.loc.end.column };
+			_n.range = { start: fn.range[0], end: fn.range[1] };
+			return E.right(_n);
 		}
 
 		if (isNativeVertex(v)) {
 			n.label = v.name;
 			n.file = 'Native';
-			n.start.row = null;
-			n.end.row = null;
-			n.start.column = null;
-			n.end.column = null;
-			n.range = { start: null, end: null };
+			n.start!.row = undefined;
+			n.end!.row = undefined;
+			n.start!.column = undefined;
+			n.end!.column = undefined;
+			n.range = { start: undefined, end: undefined };
 			return E.right(n);
 		}
 
