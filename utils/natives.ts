@@ -1,5 +1,5 @@
-import { nativeVertex, propertyVertex } from '@lib-calllgraph/flowGraph';
-import { FlowGraph } from '@lib-calllgraph/graph';
+import { nativeVertex, propertyVertex } from '@lib-callgraph/flowGraph';
+import { FlowGraph } from '@lib-callgraph/graph';
 
 const nativeFunctions: Record<string, string> = {
 	eval: 'eval',

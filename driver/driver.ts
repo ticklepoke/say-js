@@ -1,5 +1,5 @@
-import { buildCallGraph, CallGraphData } from '@lib-calllgraph/callGraph';
-import { Vertex, isCalleeVertex, isFunctionVertex, isNativeVertex } from '@lib-calllgraph/vertex';
+import { buildCallGraph, CallGraphData } from '@lib-callgraph/callGraph';
+import { Vertex, isCalleeVertex, isFunctionVertex, isNativeVertex } from '@lib-callgraph/vertex';
 import { astFromFiles } from '@lib-frontend/ast';
 import { enclosingFunctionName, functionName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';

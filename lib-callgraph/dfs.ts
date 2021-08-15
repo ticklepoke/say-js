@@ -1,8 +1,8 @@
 /**
  * @module dfs transitive closure to compute reachability of nodes
  */
-import { Graph, nodeToString } from '@lib-calllgraph/graph';
-import { Vertex } from '@lib-calllgraph/vertex';
+import { Graph, nodeToString } from '@lib-callgraph/graph';
+import { Vertex } from '@lib-callgraph/vertex';
 import { namedTypes as n } from 'ast-types';
 
 function visit1(props: {

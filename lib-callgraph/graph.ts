@@ -1,5 +1,5 @@
-import { LinkedList } from '@lib-calllgraph/linkedList';
-import { Vertex } from '@lib-calllgraph/vertex';
+import { LinkedList } from '@lib-callgraph/linkedList';
+import { Vertex } from '@lib-callgraph/vertex';
 import { ExtendedNode } from '@lib-frontend/astTypes';
 import { panic } from '@utils/macros';
 import * as O from 'fp-ts/lib/Option';

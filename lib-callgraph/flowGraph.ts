@@ -1,5 +1,5 @@
-import { FlowGraph } from '@lib-calllgraph/graph';
-import { NativeVertex, Vertex } from '@lib-calllgraph/vertex';
+import { FlowGraph } from '@lib-callgraph/graph';
+import { NativeVertex, Vertex } from '@lib-callgraph/vertex';
 import { walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,

@@ -1,5 +1,5 @@
-import { functionVertex, getVertexForNodeType, propertyVertex } from '@lib-calllgraph/flowGraph';
-import { FlowGraph } from '@lib-calllgraph/graph';
+import { functionVertex, getVertexForNodeType, propertyVertex } from '@lib-callgraph/flowGraph';
+import { FlowGraph } from '@lib-callgraph/graph';
 import { ProgramCollection, walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,
