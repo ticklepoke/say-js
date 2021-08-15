@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const gulp = require('gulp');
+var ts = require('gulp-typescript');
 const babel = require('gulp-babel');
 
 const { parallel } = gulp;
@@ -88,4 +89,12 @@ const buildUtils = () =>
 		)
 		.pipe(gulp.dest('dist/utils'));
 
-gulp.task('default', parallel(copyPackageJson, buildDriver, buildFrontend, buildIr, buildCallgraph, buildUtils));
+const generateDFiles = () => {
+	const tsProject = ts.createProject('tsconfig.build.json');
+	return tsProject.src().pipe(tsProject()).pipe(gulp.dest('dist'));
+};
+
+gulp.task(
+	'default',
+	parallel(copyPackageJson, buildDriver, buildFrontend, buildIr, buildCallgraph, buildUtils, generateDFiles)
+);
