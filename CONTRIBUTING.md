@@ -8,8 +8,6 @@ Callgraph-generator is organised into separate components that depend on each ot
 
 ## TODO
 
-- [ ] babel
-- [ ] just use a webpack server?
 - [ ] semantic-release
 - [ ] default cli behaviour to print to console, otherwise print to file
 

@@ -10,7 +10,7 @@
         "lint": "eslint ./**/*.ts",
         "lint:fix": "eslint --fix ./**/*.ts",
         "test": "jest",
-        "dev": "ts-node -r tsconfig-paths/register index.ts",
+        "dev": "ts-node -r tsconfig-paths/register driver/sayjs.ts",
         "deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts",
         "docs:diagrams:gen": "./scripts/gen-diagrams.sh",
         "types:check": "tsc --noEmit",
