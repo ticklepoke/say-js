@@ -1,11 +1,14 @@
 {
 	"name": "@ticklepoke/sayjs",
-	"version": "0.0.1",
+	"version": "0.0.1-beta.1",
 	"description": "A call graph generator for js",
 	"main": "index.js",
 	"author": "Nigel Lee",
 	"license": "MIT",
 	"private": false,
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"lint": "eslint ./**/*.ts",
 		"lint:fix": "eslint --fix ./**/*.ts",
