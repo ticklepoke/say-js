@@ -3,8 +3,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 'use strict';
 
+import Driver from '@driver/driver';
+
 const { ArgumentParser } = require('argparse');
 const { version } = require('../package.json');
+
+const d = new Driver();
 
 const usage = './callgraph.js [options] inputFile [, inputFiles]';
 

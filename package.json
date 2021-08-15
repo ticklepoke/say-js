@@ -1,43 +1,56 @@
 {
-	"name": "call-graph-generator",
-	"version": "0.0.1",
-	"description": "A call graph generator for js",
-	"main": "index.js",
-	"author": "Nigel Lee",
-	"license": "MIT",
-	"private": false,
-	"scripts": {
-		"lint": "eslint ./**/*.ts",
-		"lint:fix": "eslint --fix ./**/*.ts",
-		"test": "jest",
-		"dev": "ts-node -r tsconfig-paths/register index.ts",
-		"deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts",
-		"docs:diagrams:gen": "./scripts/gen-diagrams.sh",
-		"types:check": "tsc --noEmit"
-	},
-	"devDependencies": {
-		"@mermaid-js/mermaid-cli": "^8.11.0",
-		"@types/node": "^16.4.13",
-		"@typescript-eslint/eslint-plugin": "^4.29.0",
-		"@typescript-eslint/parser": "^4.29.0",
-		"dpdm": "^3.7.1",
-		"eslint": "^7.32.0",
-		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-prettier": "^3.4.0",
-		"husky": "^7.0.1",
-		"jest": "^27.0.6",
-		"lint-staged": "^11.1.1",
-		"nodemon": "^2.0.12",
-		"prettier": "^2.3.2",
-		"ts-jest": "^27.0.4",
-		"ts-node": "^10.1.0",
-		"tsconfig-paths": "^3.10.1",
-		"typescript": "^4.3.5"
-	},
-	"dependencies": {
-		"argparse": "^2.0.1",
-		"ast-types": "^0.14.2",
-		"fp-ts": "^2.11.1",
-		"recast": "^0.20.5"
-	}
+    "name": "@ticklepoke/sayjs",
+    "version": "0.0.1",
+    "description": "A call graph generator for js",
+    "main": "index.js",
+    "author": "Nigel Lee",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+        "lint": "eslint ./**/*.ts",
+        "lint:fix": "eslint --fix ./**/*.ts",
+        "test": "jest",
+        "dev": "ts-node -r tsconfig-paths/register index.ts",
+        "deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts",
+        "docs:diagrams:gen": "./scripts/gen-diagrams.sh",
+        "types:check": "tsc --noEmit",
+        "build": "babel driver lib-callgraph lib-frontend lib-ir utils --out-dir ./dist --relative --extensions '.ts'",
+        "tsc": "tsc",
+        "gulp": "gulp"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.14.8",
+        "@babel/core": "^7.15.0",
+        "@babel/preset-env": "^7.15.0",
+        "@babel/preset-typescript": "^7.15.0",
+        "@mermaid-js/mermaid-cli": "^8.11.0",
+        "@types/node": "^16.4.13",
+        "@typescript-eslint/eslint-plugin": "^4.29.0",
+        "@typescript-eslint/parser": "^4.29.0",
+        "babel-plugin-root-import": "^6.6.0",
+        "dpdm": "^3.7.1",
+        "eslint": "^7.32.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-prettier": "^3.4.0",
+        "gulp": "^4.0.2",
+        "gulp-babel": "^8.0.0",
+        "husky": "^7.0.1",
+        "jest": "^27.0.6",
+        "lint-staged": "^11.1.1",
+        "nodemon": "^2.0.12",
+        "prettier": "^2.3.2",
+        "ts-jest": "^27.0.4",
+        "ts-node": "^10.1.0",
+        "tsconfig-paths": "^3.10.1",
+        "typescript": "^4.3.5"
+    },
+    "dependencies": {
+        "argparse": "^2.0.1",
+        "ast-types": "^0.14.2",
+        "fp-ts": "^2.11.1",
+        "recast": "^0.20.5"
+    },
+    "bin": {
+        "sayjs": "./driver/sayjs.js"
+    }
 }
