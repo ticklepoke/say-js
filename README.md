@@ -38,6 +38,17 @@ sayjs -o graph.json foo/bar.js
 sayjs --output-file graph.json foo/bar.js
 ```
 
+### Programming Interface
+
+```js
+import sayjs from '@ticklepoke/sayjs';
+// or
+const sayjs = require('@ticklepoke/sayjs');
+
+sayjs.setFiles(['file.js', 'directory/']);
+const edges = sayjs.build();
+```
+
 ## Output JSON
 
 ```json

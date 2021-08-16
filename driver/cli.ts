@@ -10,7 +10,7 @@ const { version } = require('../package.json');
 
 const d = new Driver();
 
-const usage = './callgraph.js [options] inputFile [, inputFiles]';
+const usage = 'sayjs [options] inputFile [, inputFiles]';
 
 const parser = new ArgumentParser({
 	description: `Call-graph generator v${version}`,

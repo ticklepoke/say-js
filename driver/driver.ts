@@ -35,6 +35,7 @@ type Edge = {
 
 export default class Driver {
 	private static files: string[] = [];
+	public static outputFileName: string;
 
 	public static setFiles(fileList: string[]): void {
 		Driver.files = [];
@@ -51,15 +52,8 @@ export default class Driver {
 		}
 	}
 
-	public static build(): void {
+	public static build(): RecursivePartial<Edge>[] | undefined {
 		const ast = astFromFiles(Driver.files);
-
-		flow(
-			E.map(addBindings),
-			E.map(buildCallGraph),
-			E.map(collectEdges),
-			E.map(Driver.writeJSON('outputFile.json'))
-		)(ast);
 
 		function collectEdges(callGraph: CallGraphData) {
 			const result: RecursivePartial<Edge>[] = [];
@@ -68,14 +62,28 @@ export default class Driver {
 			});
 			return result;
 		}
+
+		const res = flow(E.map(addBindings), E.map(buildCallGraph), E.map(collectEdges), E.chain(Driver.writeJSON))(ast);
+
+		if (E.isRight(res)) {
+			return res.right;
+		}
 	}
 
-	private static writeJSON(filename: string) {
-		return (result: RecursivePartial<Edge>[]) =>
-			E.tryCatch(
-				() => fs.writeFileSync(filename, JSON.stringify(result, null, 2)),
-				(e) => e
-			);
+	public setOutputJson(outputFileName: string): void {
+		Driver.outputFileName = outputFileName;
+	}
+
+	private static writeJSON(result: RecursivePartial<Edge>[]) {
+		return E.tryCatch(
+			() => {
+				if (Driver.outputFileName) {
+					fs.writeFileSync(Driver.outputFileName, JSON.stringify(result, null, 2));
+				}
+				return result;
+			},
+			(e) => e
+		);
 	}
 
 	private static buildBinding(u: Vertex, v: Vertex): RecursivePartial<Edge> {

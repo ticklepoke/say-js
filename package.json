@@ -54,6 +54,6 @@
 		"recast": "^0.20.5"
 	},
 	"bin": {
-		"sayjs": "./driver/sayjs.js"
+		"sayjs": "./driver/cli.js"
 	}
 }
