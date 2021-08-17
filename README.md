@@ -1,5 +1,7 @@
 # SAY.JS - A Static Analyser for Javascript
 
+![npm](https://img.shields.io/npm/v/@ticklepoke/sayjs)
+
 This project provides static analysis tools for Javascript source code. It generates function - callee and variable - reference graphs. It builds upon the call-graph construction algorithm described in:
 
 > A. Feldthaus, M. Schäfer, M. Sridharan, J. Dolby, F. Tip. Efficient Construction of Approximate Call Graphs for JavaScript IDE Services. In ICSE, 2013.
