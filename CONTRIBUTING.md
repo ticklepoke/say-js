@@ -36,7 +36,7 @@ The following sequence diagram provides a high level, partial overview of the mo
 
 ![sequence](./docs/diagrams/sequence.png)
 
-### [Driver](#)
+### [Driver](./docs/DRIVER.md)
 
 This library drives the callgraph generation process and is the only public interface. It has the longest activation as seen on the sequence diagram.
 
