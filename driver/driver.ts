@@ -70,7 +70,7 @@ export default class Driver {
 		}
 	}
 
-	public setOutputJson(outputFileName: string): void {
+	public static setOutputJson(outputFileName: string): void {
 		Driver.outputFileName = outputFileName;
 	}
 

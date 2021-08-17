@@ -4,11 +4,10 @@
 'use strict';
 
 import Driver from '@driver/driver';
+import { prettyPrint } from '@utils/console';
 
 const { ArgumentParser } = require('argparse');
 const { version } = require('../package.json');
-
-const d = new Driver();
 
 const usage = 'sayjs [options] inputFile [, inputFiles]';
 
@@ -26,4 +25,13 @@ const inputFiles = args[1];
 
 if (inputFiles.length === 0) {
 	console.warn(`Usage: ${usage}`);
+}
+
+Driver.setFiles(inputFiles);
+if (outputFileName) {
+	Driver.setOutputJson(outputFileName);
+}
+const results = Driver.build();
+if (!outputFileName) {
+	prettyPrint(results);
 }
