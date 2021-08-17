@@ -9,7 +9,6 @@ Callgraph-generator is organised into separate components that depend on each ot
 ## TODO
 
 - [ ] semantic-release
-- [ ] default cli behaviour to print to console, otherwise print to file
 - [ ] expose driver as an API so this can be used as an npm package. Most likely as an export from root index file
 
 ## Building and Packaging
