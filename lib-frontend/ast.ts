@@ -25,7 +25,7 @@ import { parse as recastParse } from 'recast';
  */
 export type ProgramCollection = n.Node &
 	ExtendedNode & {
-		type: string;
+		type: 'ProgramCollection';
 		programs: ExtendedNode[];
 	};
 
