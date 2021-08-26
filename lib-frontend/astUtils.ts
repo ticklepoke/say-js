@@ -55,10 +55,11 @@ export function prettyPrintPosition(node: ExtendedNode): string {
 }
 
 export function createExtendedNode(node: n.Node | ExtendedNode): ExtendedNode {
-	return {
-		attributes: {},
-		...node,
-	};
+	const _node = node as ExtendedNode;
+	if (!_node.attributes) {
+		_node.attributes = {};
+	}
+	return _node;
 }
 
 export function createExtendedNodeT<T extends n.Node>(node: n.Node | ExtendedNode): ExtendedNodeT<T> {
