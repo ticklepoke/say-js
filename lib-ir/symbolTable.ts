@@ -27,7 +27,7 @@ export default class SymbolTable<T> {
 		this._values[mangle(name)] = value;
 	}
 
-	get values(): T[] {
+	values(): T[] {
 		return Object.keys(this.values)
 			.filter(isMangled)
 			.map((key) => this._values[key]);
