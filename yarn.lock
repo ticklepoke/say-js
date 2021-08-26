@@ -1522,6 +1522,18 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/esprima@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@types/esprima/-/esprima-4.0.3.tgz#e9068297cc3dd75231fa5cdaa6d75c50d5fb632f"
+  integrity sha512-jo14dIWVVtF0iMsKkYek6++4cWJjwpvog+rchLulwgFJGTXqIeTdCOvY0B3yMLTaIwMcKCdJ6mQbSR6wYHy98A==
+  dependencies:
+    "@types/estree" "*"
+
+"@types/estree@*":
+  version "0.0.50"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.50.tgz#1e0caa9364d3fccd2931c3ed96fdbeaa5d4cca83"
+  integrity sha512-C6N5s2ZFtuZRj54k2/zyRhNDjJwwcViAM3Nbm8zjBpbqAdZ00mr0CFxvSKeO8Y/e03WVFLpQMdHYVfUd6SB+Hw==
+
 "@types/fs-extra@^9.0.12":
   version "9.0.12"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.12.tgz#9b8f27973df8a7a3920e8461517ebf8a7d4fdfaf"
@@ -1562,6 +1574,14 @@
   integrity sha512-c3mAZEuK0lvBp8tmuL74XRKn1+y2dcwOUpH7x4WrF6gk1GIgiluDRgMYQtw2OFcBvAJWlt6ASU3tSqxp0Uu0Aw==
   dependencies:
     "@types/istanbul-lib-report" "*"
+
+"@types/jest@^27.0.1":
+  version "27.0.1"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-27.0.1.tgz#fafcc997da0135865311bb1215ba16dba6bdf4ca"
+  integrity sha512-HTLpVXHrY69556ozYkcq47TtQJXpcWAWfkoqz+ZGz2JnmZhzlRjprCIyFnetSy8gpDWwTTGBcRVv1J1I1vBrHw==
+  dependencies:
+    jest-diff "^27.0.0"
+    pretty-format "^27.0.0"
 
 "@types/json-schema@^7.0.7":
   version "7.0.8"
@@ -3842,6 +3862,11 @@ form-data@^3.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
+fp-ts-std@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/fp-ts-std/-/fp-ts-std-0.11.0.tgz#8fd7c81eb26bfdadc400dea8620e024947fd8ed2"
+  integrity sha512-9MjsA/cKjH/qxz+OYO4Wij0h5Hfr/PfnFaV4m3G+FAg8SlTbFNiCTX6eC1gHQO0Ilgyp9xkh7H4GufUMhYVq4A==
+
 fp-ts@^2.11.1:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.1.tgz#b1eeb2540728b6328542664888442f8f805d2443"
@@ -4854,7 +4879,7 @@ jest-config@^27.0.6:
     micromatch "^4.0.4"
     pretty-format "^27.0.6"
 
-jest-diff@^27.0.6:
+jest-diff@^27.0.0, jest-diff@^27.0.6:
   version "27.0.6"
   resolved "https://registry.yarnpkg.com/jest-diff/-/jest-diff-27.0.6.tgz#4a7a19ee6f04ad70e0e3388f35829394a44c7b5e"
   integrity sha512-Z1mqgkTCSYaFgwTlP/NUiRzdqgxmmhzHY1Tq17zL94morOHfHu3K4bgSgl+CR4GLhpV8VxkuOYuIWnQ9LnFqmg==
@@ -6313,7 +6338,7 @@ prettier@^2.3.2:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.2.tgz#ef280a05ec253712e486233db5c6f23441e7342d"
   integrity sha512-lnJzDfJ66zkMy58OL5/NY5zp70S7Nz6KqcKkXYzn2tMVrNxvbqaBpg7H3qHaLxCJ5lNMsGuM8+ohS7cZrthdLQ==
 
-pretty-format@^27.0.6:
+pretty-format@^27.0.0, pretty-format@^27.0.6:
   version "27.0.6"
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-27.0.6.tgz#ab770c47b2c6f893a21aefc57b75da63ef49a11f"
   integrity sha512-8tGD7gBIENgzqA+UBzObyWqQ5B778VIFZA/S66cclyd5YkFLYs2Js7gxDKf0MXtTc9zcS7t1xhdfcElJ3YIvkQ==

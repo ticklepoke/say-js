@@ -12,7 +12,9 @@
 	"scripts": {
 		"lint": "eslint ./**/*.ts",
 		"lint:fix": "eslint --fix ./**/*.ts",
-		"test": "jest",
+		"pretest": "gulp dev",
+		"test": "jest dist/",
+		"test:watch": "nodemon -e ts -i dist --exec 'gulp dev && jest' dist/",
 		"dev": "ts-node -r tsconfig-paths/register driver/sayjs.ts",
 		"deps:check": "dpdm --circular --exit-code circular:1 ./**/*.ts",
 		"docs:diagrams:gen": "./scripts/gen-diagrams.sh",
@@ -26,6 +28,8 @@
 		"@babel/preset-env": "^7.15.0",
 		"@babel/preset-typescript": "^7.15.0",
 		"@mermaid-js/mermaid-cli": "^8.11.0",
+		"@types/esprima": "^4.0.3",
+		"@types/jest": "^27.0.1",
 		"@types/node": "^16.4.13",
 		"@typescript-eslint/eslint-plugin": "^4.29.0",
 		"@typescript-eslint/parser": "^4.29.0",
@@ -34,6 +38,7 @@
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-prettier": "^3.4.0",
+		"fp-ts-std": "^0.11.0",
 		"gulp": "^4.0.2",
 		"gulp-babel": "^8.0.0",
 		"gulp-typescript": "^6.0.0-alpha.1",
@@ -50,8 +55,8 @@
 	"dependencies": {
 		"argparse": "^2.0.1",
 		"ast-types": "^0.14.2",
-		"fp-ts": "^2.11.1",
-		"recast": "^0.20.5"
+		"esprima": "^4.0.1",
+		"fp-ts": "^2.11.1"
 	},
 	"bin": {
 		"sayjs": "./driver/cli.js"
