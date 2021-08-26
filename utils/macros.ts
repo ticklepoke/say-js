@@ -1,4 +1,6 @@
 export function panic(e: string): void {
 	console.error(e);
-	process.exit();
+	setTimeout(() => {
+		process.exit(1);
+	}, 1000);
 }
