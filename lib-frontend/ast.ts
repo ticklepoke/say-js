@@ -3,7 +3,6 @@ import {
 	ExtendedNode,
 	isArrowFunctionExpression,
 	isCallExpression,
-	isFunctionDeclaration,
 	isFunctionExpression,
 	isFunctionType,
 	isIdentifier,
@@ -18,7 +17,7 @@ import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 import * as E from 'fp-ts/Either';
 import fs from 'fs';
-import { parse as recastParse } from 'recast';
+import { parseModule } from 'esprima';
 
 /**
  * @type ProgramCollection A custom top level node that holds programs from multiple files
@@ -36,7 +35,7 @@ export type ProgramCollection = n.Node &
  */
 export function parse(src: string): E.Either<SyntaxError, n.Node> {
 	return E.tryCatch(
-		() => recastParse(src, { range: true }) as n.Node,
+		() => parseModule(src) as n.Node,
 		(e) => e as SyntaxError
 	);
 }
@@ -86,11 +85,14 @@ export function astFromFiles(files: string[]): E.Either<SyntaxError, ProgramColl
 export function astFromSrc(fileName: string, src: string): E.Either<SyntaxError, ProgramCollection> {
 	const program = buildProgram(fileName, src);
 
-	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map((program: ExtendedNode) => ({
-		type: 'ProgramCollection',
-		programs: [program],
-		attributes: {},
-	}))(program);
+	const formattedAst: E.Either<SyntaxError, ProgramCollection> = E.map(
+		(program: ExtendedNode) =>
+			({
+				type: 'ProgramCollection',
+				programs: [program],
+				attributes: {},
+			} as ProgramCollection)
+	)(program);
 
 	E.map(preProcess)(formattedAst);
 	return formattedAst;
@@ -116,16 +118,16 @@ export function walk(
 		parent?: ExtendedNode,
 		childPropName?: string,
 		state?: State
-	) => boolean,
+	) => boolean | undefined,
 	initialState?: State
 ): void {
 	function traverse(node: ExtendedNode | n.Node, parent?: ExtendedNode, childPropName?: string, state?: State) {
 		if (!node || typeof node !== 'object') return;
 
 		const _node = createExtendedNode(node);
-		if (node.type) {
+		if (_node.type) {
 			const res = callback(_node, traverse, parent, childPropName, state);
-			if (!res) return;
+			if (res === false) return;
 		}
 
 		for (const propName in _node) {
@@ -153,77 +155,74 @@ function preProcess(root: ProgramCollection) {
 	root.attributes.functions = [];
 	root.attributes.calls = [];
 
-	for (const p of root.programs) {
-		walk(p, (node, traverse, parent, childPropName): boolean => {
-			if (!node.attributes) {
+	walk(root, (node, traverse, parent, childPropName): boolean | undefined => {
+		if (!node.attributes) {
+			node.attributes = {};
+		}
+		if (enclosingFunction && isFunctionType(enclosingFunction)) {
+			node.attributes.enclosingFunction = enclosingFunction;
+		}
+		if (enclosingFile) {
+			node.attributes.enclosingFile = enclosingFile;
+		}
+
+		if (isProgram(node)) {
+			enclosingFile = node.attributes.fileName;
+		}
+
+		if (isFunctionExpression(node) && parent && isProperty(parent)) {
+			if (!parent.computed) {
+				if (isIdentifier(parent.key)) {
+					node.id = parent.key;
+				} else if (isLiteral(parent.key)) {
+					node.id = {
+						type: 'Identifier',
+						name: parent.key.value?.toString() ?? 'Unknown Name',
+						range: createExtendedNode(parent.key).range,
+						loc: parent.key.loc,
+					} as n.Identifier;
+				} else {
+					panic('[Ast::preProcess] Invalid syntax: Unexpected key type on Property');
+				}
+			}
+		}
+
+		if (isFunctionType(node)) {
+			root.attributes!.functions!.push(node);
+			if (node.attributes === undefined) {
 				node.attributes = {};
 			}
-			if (enclosingFunction && isFunctionType(enclosingFunction)) {
-				node.attributes.enclosingFunction = enclosingFunction;
+			node.attributes.parent = parent;
+			node.attributes.childPropName = childPropName;
+			const prevEnclosingFn = enclosingFunction;
+			enclosingFunction = node;
+			if (!isArrowFunctionExpression(node)) {
+				traverse(node.id as ExtendedNode);
 			}
-			if (enclosingFile) {
-				node.attributes.enclosingFile = enclosingFile;
+			for (const p of node.params) {
+				traverse(createExtendedNode(p));
 			}
+			traverse(node.body as ExtendedNode);
+			enclosingFunction = prevEnclosingFn;
+			return false;
+		}
 
-			if (isProgram(node)) {
-				enclosingFile = node.attributes.fileName;
-			}
-
-			if (isFunctionExpression(node) && parent && isProperty(parent)) {
-				if (!parent.computed) {
-					if (isIdentifier(parent.key)) {
-						node.id = parent.key;
-					} else if (isLiteral(parent.key)) {
-						node.id = {
-							type: 'Identifier',
-							name: parent.key.value?.toString() ?? 'Unknown Name',
-							range: createExtendedNode(parent.key).range,
-							loc: parent.key.loc,
-						} as n.Identifier;
-					} else {
-						panic('[Ast::preProcess] Invalid syntax: Unexpected key type on Property');
-					}
-				}
-			}
-
-			if (isFunctionExpression(node) || isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
-				root.attributes?.functions?.push(node);
-				if (node.attributes === undefined) {
-					node.attributes = {};
-				}
-				node.attributes.parent = parent;
-				node.attributes.childPropName = childPropName;
-				const prevEnclosingFn = enclosingFunction;
-				enclosingFunction = node;
-				if (!isArrowFunctionExpression(node)) {
-					traverse(node.id as ExtendedNode);
-				}
-				for (const p of node.params) {
-					traverse(createExtendedNode(p));
-				}
-				traverse(node.body as ExtendedNode);
-				enclosingFunction = prevEnclosingFn;
-				return false;
-			}
-
-			if (isMethodDefinition(node)) {
-				if (!node.computed) {
-					if (isIdentifier(node.key)) {
-						node.value.id = node.key;
-					} else if (isLiteral(node.key)) {
-						panic('[Ast::preProcess] Invalid syntax: Method name cannot be literal');
-					} else {
-						panic('[Ast::preProcess] Invalid syntax: Unexpected key type for MethodDefinition');
-					}
+		if (isMethodDefinition(node)) {
+			if (!node.computed) {
+				if (isIdentifier(node.key)) {
+					node.value.id = node.key;
+				} else if (isLiteral(node.key)) {
+					panic('[Ast::preProcess] Invalid syntax: Method name cannot be literal');
 				} else {
-					panic('[Ast::preProcess] Unimplemented: Computed keys for MethodDefinition');
+					panic('[Ast::preProcess] Invalid syntax: Unexpected key type for MethodDefinition');
 				}
+			} else {
+				panic('[Ast::preProcess] Unimplemented: Computed keys for MethodDefinition');
 			}
+		}
 
-			if (isCallExpression(node) || isNewExpression(node)) {
-				root.attributes!.calls?.push(node);
-			}
-			return true;
-		});
-	}
+		if (isCallExpression(node) || isNewExpression(node)) {
+			root.attributes!.calls?.push(node);
+		}
+	});
 }

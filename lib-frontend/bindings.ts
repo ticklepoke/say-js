@@ -39,7 +39,7 @@ export function addBindings(ast: ProgramCollection): ProgramCollection {
 				}
 			}
 
-			if (isFunctionExpression(node) || isArrowFunctionExpression(node)) {
+			if (isFunctionDeclaration(node) || isFunctionExpression(node) || isArrowFunctionExpression(node)) {
 				const prevDeclaratedScope = declaredScope;
 				declaredScope = new SymbolTable<ExtendedNodeT<n.Literal | n.Identifier>>(currScope);
 				currScope = declaredScope;
@@ -50,7 +50,7 @@ export function addBindings(ast: ProgramCollection): ProgramCollection {
 				}
 				node.attributes.scope = currScope;
 
-				if (node.id && isIdentifier(node.id)) {
+				if (node.id && isIdentifier(node.id) && (isFunctionExpression(node) || isArrowFunctionExpression(node))) {
 					declaredScope.set(node.id.name, node.id);
 					traverse(node.id);
 				}
