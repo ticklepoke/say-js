@@ -35,7 +35,7 @@ export type ProgramCollection = n.Node &
  */
 export function parse(src: string): E.Either<SyntaxError, n.Node> {
 	return E.tryCatch(
-		() => parseModule(src) as n.Node,
+		() => parseModule(src, { range: true, loc: true }) as n.Node,
 		(e) => e as SyntaxError
 	);
 }

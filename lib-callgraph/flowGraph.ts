@@ -1,6 +1,6 @@
 import { FlowGraph } from '@lib-callgraph/graph';
 import { NativeVertex, Vertex } from '@lib-callgraph/vertex';
-import { walk } from '@lib-frontend/ast';
+import { ProgramCollection, walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,
 	ExtendedNodeT,
@@ -38,7 +38,7 @@ import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 import * as O from 'fp-ts/lib/Option';
 
-export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGraph()): FlowGraph {
+export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new FlowGraph()): FlowGraph {
 	walk(ast, (node) => {
 		if (isArrayExpression(node)) {
 			node.elements.forEach((el, idx) => {
@@ -46,7 +46,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					flowGraph.addEdge(getVertexForNodeType(el), propertyVertex({ type: 'Literal', value: idx }));
 				}
 			});
-			return false;
+			return;
 		}
 		if (isAssignmentExpression(node)) {
 			if (node.operator === '=') {
@@ -55,7 +55,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					getVertexForNodeType(node),
 				]);
 			}
-			return false;
+			return;
 		}
 		if (isCallExpression(node)) {
 			if (isMemberExpression(node.callee)) {
@@ -63,22 +63,22 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 			}
 			// fall through
 		}
-		if (isNewExpression(node)) {
+		if (isCallExpression(node) || isNewExpression(node)) {
 			flowGraph.addEdge(getVertexForNodeType(node.callee), calleeVertex(node));
 			node.arguments.forEach((arg, idx) => {
 				flowGraph.addEdge(getVertexForNodeType(arg), argVertex(node, idx + 1));
 			});
 			flowGraph.addEdge(resultVertex(node), getVertexForNodeType(node));
-			return false;
+			return;
 		}
 		if (isCatchClause(node) && node.param && isIdentifier(node.param)) {
 			flowGraph.addEdge(unknownVertex(), variableVertex(node.param));
-			return false;
+			return;
 		}
 		if (isConditionalExpression(node)) {
 			flowGraph.addEdge(getVertexForNodeType(node.consequent), getVertexForNodeType(node));
 			flowGraph.addEdge(getVertexForNodeType(node.alternate), getVertexForNodeType(node));
-			return false;
+			return;
 		}
 		if (isClassDeclaration(node) || isClassExpression(node)) {
 			const { body } = node.body;
@@ -89,27 +89,27 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					}
 				}
 			}
-			return false;
+			return;
 		}
 		if (isFunctionDeclaration(node)) {
 			if (node.id) {
 				flowGraph.addEdge(functionVertex(node), getVertexForNodeType(node.id));
 			}
-			return false;
+			return;
 		}
 		if (isFunctionExpression(node) || isArrowFunctionExpression(node)) {
 			flowGraph.addEdge(functionVertex(node), expressionVertex(node));
 			if (node.id && isIdentifier(node.id)) {
 				flowGraph.addEdge(functionVertex(node), variableVertex(node.id));
 			}
-			return false;
+			return;
 		}
 		if (isLogicalExpression(node)) {
 			if (node.operator === '||') {
 				flowGraph.addEdge(getVertexForNodeType(node.left), getVertexForNodeType(node));
 			}
 			flowGraph.addEdge(getVertexForNodeType(node.right), getVertexForNodeType(node));
-			return false;
+			return;
 		}
 		if (isObjectExpression(node)) {
 			node.properties.forEach((prop) => {
@@ -117,7 +117,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					flowGraph.addEdge(getVertexForNodeType(prop.value), propertyVertex(prop.key));
 				}
 			});
-			return false;
+			return;
 		}
 		if (isReturnStatement(node)) {
 			if (node.argument) {
@@ -130,22 +130,22 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					returnVertex(createExtendedNodeT(node.attributes.enclosingFunction))
 				);
 			}
-			return false;
+			return;
 		}
 		if (isSequenceExpression(node)) {
 			const { expressions } = node;
 			flowGraph.addEdge(getVertexForNodeType(expressions[expressions.length - 1]), getVertexForNodeType(node));
-			return false;
+			return;
 		}
 		if (isThrowStatement(node)) {
 			flowGraph.addEdge(getVertexForNodeType(node.argument), unknownVertex());
-			return false;
+			return;
 		}
 		if (isVariableDeclarator(node)) {
 			if (isIdentifier(node.id) && node.init) {
 				flowGraph.addEdge(getVertexForNodeType(node.init), getVertexForNodeType(node.id));
 			}
-			return false;
+			return;
 		}
 		if (isObjectPattern(node)) {
 			for (const prop of node.properties) {
@@ -153,7 +153,7 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					flowGraph.addEdge(propertyVertex(prop.key), getVertexForNodeType(prop.value));
 				}
 			}
-			return false;
+			return;
 		}
 		if (isArrayPattern(node)) {
 			node.elements.forEach((el, idx) => {
@@ -161,13 +161,14 @@ export function addIntraProcedureEdges(ast: ExtendedNode, flowGraph = new FlowGr
 					flowGraph.addEdge(propertyVertex({ type: 'Literal', value: idx }), getVertexForNodeType(el));
 				}
 			});
+			return;
 		}
 		if (isMethodDefinition(node)) {
 			if (isIdentifier(node.key) && isFunctionType(node.value)) {
 				flowGraph.addEdge(functionVertex(node.value), propertyVertex(node.key));
 			}
+			return;
 		}
-		return false;
 	});
 
 	return flowGraph;
@@ -298,7 +299,7 @@ function expressionVertex(node: ExtendedNodeT<n.Node>): Vertex {
 		return node.attributes.expressionVertex;
 	} else {
 		node.attributes.expressionVertex = {
-			type: 'ExprVertex',
+			type: 'ExpressionVertex',
 			node,
 			attributes: {
 				prettyPrint: () => 'Expr(' + prettyPrintPosition(node) + ')',
@@ -409,10 +410,10 @@ function calleeVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression>): 
 		return node.attributes.calleeVertex;
 	}
 	node.attributes.calleeVertex = {
-		type: 'ReturnVertex',
+		type: 'CalleeVertex',
 		call: node,
 		attributes: {
-			prettyPrint: () => 'Ret(' + prettyPrintPosition(node) + ')',
+			prettyPrint: () => 'Callee(' + prettyPrintPosition(node) + ')',
 		},
 	};
 	return node.attributes.calleeVertex;
@@ -464,10 +465,10 @@ export function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpress
 		return node.attributes.resultVertex;
 	}
 	node.attributes.resultVertex = {
-		type: 'ReturnVertex',
+		type: 'ResultVertex',
 		node,
 		attributes: {
-			prettyPrint: () => 'Ret(' + prettyPrintPosition(node) + ')',
+			prettyPrint: () => 'Res(' + prettyPrintPosition(node) + ')',
 		},
 	};
 	return node.attributes.resultVertex;

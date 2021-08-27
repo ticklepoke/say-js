@@ -197,8 +197,8 @@ function getEnclosingFile(node: ExtendedNode) {
 	if (node.hasOwnProperty('call')) {
 		return (node as any).call.attributes.enclosingFile;
 	}
-	if (node.hasOwnProperty('func')) {
-		return (node as any).func.attributes.enclosingFile;
+	if (node.hasOwnProperty('function')) {
+		return (node as any).function.attributes.enclosingFile;
 	}
 	return null;
 }
@@ -212,6 +212,8 @@ export class FlowGraph extends Graph {
 
 	addEdge(from: Vertex, to: Vertex): void {
 		super.addEdge(from, to);
+		this._updateFileToNodes(from);
+		this._updateFileToNodes(to);
 	}
 
 	_updateFileToNodes(node: Vertex): void {
