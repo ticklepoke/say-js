@@ -1,5 +1,6 @@
 function bar() {
-	const a = 1;
+	let a = 1;
+	bar(a);
 	return 1;
 }
 bar();

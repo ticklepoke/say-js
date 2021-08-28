@@ -1,5 +1,5 @@
 import { ProgramCollection } from '@lib-frontend/ast';
-import { CallType, ExtendedNode, FunctionType } from '@lib-frontend/astTypes';
+import { CallType, ExtendedNode, FunctionType, isAssignmentExpression, isIdentifier } from '@lib-frontend/astTypes';
 import { createExtendedNodeT } from '@lib-frontend/astUtils';
 import { collectExportsImports, connectImports } from '@utils/modules';
 import { addNativeFunctionEdges } from '@utils/natives';
@@ -19,8 +19,10 @@ import { FlowGraph, Graph } from './graph';
 import {
 	isCalleeVertex,
 	isFunctionVertex,
+	isNodeVertex,
 	isVariableDeclaratorVertex,
 	isVariableVertex,
+	NodeVertex,
 	VariableDeclaratorVertex,
 	Vertex,
 } from './vertex';
@@ -52,12 +54,21 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 		});
 	};
 
+	// TODO: vardecl isnt referring to where the literal is being used
 	const processVariableVertex = (v: VariableDeclaratorVertex) => {
 		const r = reach.getReachable(v);
 		r.forEach((node) => {
 			if (isVariableVertex(node)) {
-				edges.addEdge(node, v, 'VariableUsage');
+				//edges.addEdge(node, v, 'VariableDeclaration');
 			}
+		});
+	};
+
+	// TODO: cant seem to reach assignment
+	const processAssignmentVertex = (v: NodeVertex) => {
+		const r = reach.getReachable(v);
+		r.forEach((node) => {
+			edges.addEdge(node, v, 'VariableUsage');
 		});
 	};
 
@@ -66,6 +77,10 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 			processFunctionVertex(n);
 		} else if (isVariableDeclaratorVertex(n)) {
 			processVariableVertex(n);
+		} else if (isNodeVertex(n)) {
+			if (isIdentifier(n.node)) {
+				processAssignmentVertex(n);
+			}
 		}
 	});
 

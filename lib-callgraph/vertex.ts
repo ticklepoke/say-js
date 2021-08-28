@@ -1,7 +1,7 @@
 /**
  * @module vertex Holds types for verticex to be added to graphs
  */
-import { ExtendedNode, ExtendedNodeT, FunctionType } from '@lib-frontend/astTypes';
+import { ExtendedNode, ExtendedNodeT, FunctionType, isCallExpression } from '@lib-frontend/astTypes';
 import {
 	enclosingFunctionName,
 	functionName,
@@ -22,6 +22,10 @@ export type Vertex = {
 
 export type NodeVertex = Vertex & {
 	node: ExtendedNode;
+};
+
+export type ArgumentVertex = NodeVertex & {
+	index: number;
 };
 
 export type FunctionVertex = Vertex & {
@@ -61,6 +65,14 @@ export function isVariableDeclaratorVertex(v: Vertex): v is VariableDeclaratorVe
 	return v.type === 'VariableDeclaratorVertex';
 }
 
+export function isNodeVertex(v: Vertex): v is NodeVertex {
+	return !!(v as any).node;
+}
+
+export function isArgumentVertex(v: Vertex): v is ArgumentVertex {
+	return v.type === 'ArgumentVertex';
+}
+
 export function prettyPrintVertex(v: Vertex): string | undefined {
 	if (isCalleeVertex(v)) {
 		return "'" + enclosingFunctionName(v.call.attributes.enclosingFunction) + "' (" + prettyPrintPosition(v.call) + ')';
@@ -81,5 +93,8 @@ export function prettyPrintVertex(v: Vertex): string | undefined {
 		return "'" + variableIdentifierName(v.node) + "' (" + prettyPrintPosition(v.node) + ')';
 	}
 
+	if (isArgumentVertex(v) && isCallExpression(v.node)) {
+		return "'" + variableIdentifierName(v.node.arguments[v.index - 1]) + "' (" + prettyPrintPosition(v.node) + ')';
+	}
 	panic('[vertex::prettyPrintVertex]: Unknown vertex');
 }

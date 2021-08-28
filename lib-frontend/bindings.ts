@@ -114,10 +114,7 @@ export function addBindings(ast: ProgramCollection): ProgramCollection {
 			}
 
 			if (isIdentifier(node) || isThisExpression(node)) {
-				node.attributes = {
-					...node.attributes,
-					scope: declaredScope,
-				};
+				node.attributes.scope = declaredScope;
 				return true;
 			}
 

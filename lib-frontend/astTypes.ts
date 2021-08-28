@@ -1,7 +1,13 @@
 /**
  * @module astTypes provide type narrowing predicates from ExtendedNode to namedTyped
  */
-import { CalleeVertex, FunctionVertex, NodeVertex, VariableDeclaratorVertex } from '@lib-callgraph/vertex';
+import {
+	ArgumentVertex,
+	CalleeVertex,
+	FunctionVertex,
+	NodeVertex,
+	VariableDeclaratorVertex,
+} from '@lib-callgraph/vertex';
 import SymbolTable from '@lib-ir/symbolTable';
 import { namedTypes as n } from 'ast-types';
 
@@ -23,7 +29,7 @@ type Attributes = {
 	calleeVertex: CalleeVertex;
 	resultVertex: NodeVertex;
 	receiverVertex: NodeVertex;
-	argumentVertex: NodeVertex;
+	argumentVertex: ArgumentVertex;
 	variableDeclaratorVertex: VariableDeclaratorVertex;
 };
 

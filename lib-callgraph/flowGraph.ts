@@ -1,5 +1,5 @@
 import { FlowGraph } from '@lib-callgraph/graph';
-import { NativeVertex, Vertex } from '@lib-callgraph/vertex';
+import { ArgumentVertex, NativeVertex, Vertex } from '@lib-callgraph/vertex';
 import { ProgramCollection, walk } from '@lib-frontend/ast';
 import {
 	ExtendedNode,
@@ -145,7 +145,6 @@ export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new F
 			if (isIdentifier(node.id) && node.init) {
 				flowGraph.addEdge(getVertexForNodeType(node.init), getVertexForNodeType(node.id));
 				flowGraph.addEdge(getVertexForNodeType(node), getVertexForNodeType(node.id));
-				//flowGraph.addEdge(getVertexForNodeType(node.id), getVertexForNodeType(node));
 			}
 			return;
 		}
@@ -454,10 +453,11 @@ export function argVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpression
 		_arg.attributes.argumentVertex = {
 			type: 'ArgumentVertex',
 			node,
+			index: idx,
 			attributes: {
 				prettyPrint: () => 'Arg(' + prettyPrintPosition(node) + ', ' + idx + ')',
 			},
-		};
+		} as ArgumentVertex;
 		return _arg.attributes.argumentVertex;
 	}
 }

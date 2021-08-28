@@ -8,9 +8,10 @@ import {
 	prettyPrintVertex,
 	isVariableVertex,
 	isVariableDeclaratorVertex,
+	isArgumentVertex,
 } from '@lib-callgraph/vertex';
 import { astFromFiles } from '@lib-frontend/ast';
-import { isIdentifier } from '@lib-frontend/astTypes';
+import { isCallExpression, isIdentifier } from '@lib-frontend/astTypes';
 import { enclosingFunctionName, functionName, variableDeclaratorName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';
 import { collectFiles } from '@utils/files';
@@ -204,6 +205,21 @@ export default class Driver {
 			return E.right(_n);
 		}
 
+		if (isArgumentVertex(v) && isCallExpression(v.node) && isIdentifier(v.node.callee)) {
+			const { node } = v;
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			const _n = n as Node;
+			// @ts-expect-error assuming its a literal now
+			_n.label = node.arguments[v.index - 1].name;
+			_n.file = node.attributes.enclosingFile ?? '';
+			_n.start = { row: node.loc.start.line, column: node.loc.start.column };
+			_n.end = { row: node.loc.end.line, column: node.loc.end.column };
+			_n.range = { start: node.range[0], end: node.range[1] };
+			return E.right(_n);
+		}
 		return E.left('Unknown vertex: ' + JSON.stringify(v.type));
 	}
 }
