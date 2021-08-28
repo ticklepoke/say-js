@@ -85,8 +85,8 @@ export default class Driver {
 				if (Driver.outputFileName) {
 					fs.writeFileSync(path.resolve(__dirname, '../' + Driver.outputFileName), JSON.stringify(result, null, 2));
 				} else {
-					edges.iter((from, to) => {
-						console.log(prettyPrintVertex(from) + ' -> ' + prettyPrintVertex(to));
+					edges.iter((from, to, relation) => {
+						console.log(relation + ': ' + prettyPrintVertex(from) + ' -> ' + prettyPrintVertex(to));
 					});
 				}
 				return result;
