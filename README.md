@@ -54,9 +54,42 @@ const edges = sayjs.build();
 ## Output JSON
 
 ```json
-{
-    "foo": "bar"
-}
+[
+  {
+    "source": {
+      "label": "global",
+      "file": "/home/user/project/simpleCall.js",
+      "start": {
+        "row": 4,
+        "column": 0
+      },
+      "end": {
+        "row": 4,
+        "column": 5
+      },
+      "range": {
+        "start": 30,
+        "end": 35
+      }
+    },
+    "target": {
+      "label": "bar",
+      "file": "/home/user/project/simpleCall.js",
+      "start": {
+        "row": 1,
+        "column": 0
+      },
+      "end": {
+        "row": 3,
+        "column": 1
+      },
+      "range": {
+        "start": 0,
+        "end": 29
+      }
+    }
+  }
+]
 ```
 
 ## Supported Modern Javascript Features
