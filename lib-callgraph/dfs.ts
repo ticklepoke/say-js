@@ -44,7 +44,6 @@ export function makeReachability(graph: Graph, nodePred: NodePred): Reachability
 
 			for (let j = 0; j < succ.length; j++) {
 				const index = stringToReachabilityId[nodeToString(succ[j])];
-				console.log(index);
 				if (nodePred && !nodePred(succ[j])) continue;
 				if (m[i].has(index) || t[i].has(index)) continue;
 

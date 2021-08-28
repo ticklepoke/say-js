@@ -48,8 +48,8 @@ class BaseGraph {
 	addEdge(u: string, v: string) {
 		this.addNode(u);
 		this.addNode(v);
-		this._pred[u].add(v);
-		this._succ[v].add(u);
+		this._pred[v].add(u);
+		this._succ[u].add(v);
 	}
 
 	// Remove any edge going from u to v
