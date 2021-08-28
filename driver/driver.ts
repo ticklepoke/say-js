@@ -72,6 +72,9 @@ export default class Driver {
 	}
 
 	public static setOutputJson(outputFileName: string): void {
+		if (!outputFileName.endsWith('.json')) {
+			panic('[Driver::setOutputJson]: Filename must be json');
+		}
 		Driver.outputFileName = outputFileName;
 	}
 
@@ -80,7 +83,7 @@ export default class Driver {
 		return E.tryCatch(
 			() => {
 				if (Driver.outputFileName) {
-					fs.writeFileSync(Driver.outputFileName, JSON.stringify(result, null, 2));
+					fs.writeFileSync(path.resolve(__dirname, '../' + Driver.outputFileName), JSON.stringify(result, null, 2));
 				} else {
 					edges.iter((from, to) => {
 						console.log(prettyPrintVertex(from) + ' -> ' + prettyPrintVertex(to));
