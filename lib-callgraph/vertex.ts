@@ -1,7 +1,15 @@
 /**
  * @module vertex Holds types for verticex to be added to graphs
  */
-import { ExtendedNode, ExtendedNodeT, FunctionType, isCallExpression } from '@lib-frontend/astTypes';
+import {
+	ExtendedNode,
+	ExtendedNodeT,
+	FunctionType,
+	isAssignmentExpression,
+	isBinaryExpression,
+	isCallExpression,
+	isUpdateExpresion,
+} from '@lib-frontend/astTypes';
 import {
 	enclosingFunctionName,
 	functionName,
@@ -44,6 +52,10 @@ export type VariableDeclaratorVertex = Vertex & {
 	variableDeclarator: ExtendedNodeT<n.VariableDeclarator>;
 };
 
+export type GlobalVertex = Vertex & {
+	name: string;
+};
+
 // Type narrowing utils below
 export function isCalleeVertex(v: Vertex): v is CalleeVertex {
 	return v.type === 'CalleeVertex';
@@ -73,9 +85,25 @@ export function isArgumentVertex(v: Vertex): v is ArgumentVertex {
 	return v.type === 'ArgumentVertex';
 }
 
+export function isGlobalVertex(v: Vertex): v is GlobalVertex {
+	return v.type === 'GlobalVertex';
+}
+
 export function prettyPrintVertex(v: Vertex): string | undefined {
+	if (isGlobalVertex(v)) {
+		return 'global.' + v.name;
+	}
+
 	if (isCalleeVertex(v)) {
-		return "'" + enclosingFunctionName(v.call.attributes.enclosingFunction) + "' (" + prettyPrintPosition(v.call) + ')';
+		return (
+			"'" +
+			enclosingFunctionName(v.call.attributes.enclosingFunction) +
+			'.' +
+			variableIdentifierName(v.call.callee) +
+			"()' (" +
+			prettyPrintPosition(v.call) +
+			')'
+		);
 	}
 	if (isFunctionVertex(v)) {
 		return "'" + functionName(v.function) + "' (" + prettyPrintPosition(v.function) + ')';
@@ -94,7 +122,30 @@ export function prettyPrintVertex(v: Vertex): string | undefined {
 	}
 
 	if (isArgumentVertex(v) && isCallExpression(v.node)) {
-		return "'" + variableIdentifierName(v.node.arguments[v.index - 1]) + "' (" + prettyPrintPosition(v.node) + ')';
+		return (
+			"'" +
+			enclosingFunctionName(v.node.attributes.enclosingFunction) +
+			'.' +
+			variableIdentifierName(v.node.callee) +
+			'(' +
+			variableIdentifierName(v.node.arguments[v.index - 1]) +
+			')' +
+			"' (" +
+			prettyPrintPosition(v.node) +
+			')'
+		);
+	}
+
+	if (isNodeVertex(v)) {
+		if (isAssignmentExpression(v.node)) {
+			return "'" + variableIdentifierName(v.node.left) + "' (" + prettyPrintPosition(v.node) + ')';
+		}
+		if (isUpdateExpresion(v.node)) {
+			return "'" + variableIdentifierName(v.node.argument) + "' (" + prettyPrintPosition(v.node) + ')';
+		}
+		if (isBinaryExpression(v.node)) {
+			return "'" + variableIdentifierName(v.node.left) + "' (" + prettyPrintPosition(v.node) + ')';
+		}
 	}
 	panic('[vertex::prettyPrintVertex]: Unknown vertex');
 }

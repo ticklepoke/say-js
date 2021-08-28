@@ -9,11 +9,13 @@ import {
 	isArrayPattern,
 	isArrowFunctionExpression,
 	isAssignmentExpression,
+	isBinaryExpression,
 	isCallExpression,
 	isCatchClause,
 	isClassDeclaration,
 	isClassExpression,
 	isConditionalExpression,
+	isExpressionStatement,
 	isFunctionDeclaration,
 	isFunctionExpression,
 	isFunctionType,
@@ -30,6 +32,7 @@ import {
 	isSequenceExpression,
 	isThisExpression,
 	isThrowStatement,
+	isUpdateExpresion,
 	isVariableDeclarator,
 } from '@lib-frontend/astTypes';
 import { createExtendedNode, createExtendedNodeT, prettyPrintPosition } from '@lib-frontend/astUtils';
@@ -50,10 +53,11 @@ export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new F
 		}
 		if (isAssignmentExpression(node)) {
 			if (node.operator === '=') {
-				flowGraph.addEdges(getVertexForNodeType(node.right), [
-					getVertexForNodeType(node.left),
-					getVertexForNodeType(node),
-				]);
+				// flowGraph.addEdges(getVertexForNodeType(node.right), [
+				// 	getVertexForNodeType(node.left),
+				// 	getVertexForNodeType(node),
+				// ]);
+				flowGraph.addEdge(getVertexForNodeType(node.left), getVertexForNodeType(node));
 			}
 			return;
 		}
@@ -143,7 +147,7 @@ export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new F
 		}
 		if (isVariableDeclarator(node)) {
 			if (isIdentifier(node.id) && node.init) {
-				flowGraph.addEdge(getVertexForNodeType(node.init), getVertexForNodeType(node.id));
+				// flowGraph.addEdge(getVertexForNodeType(node.init), getVertexForNodeType(node.id));
 				flowGraph.addEdge(getVertexForNodeType(node), getVertexForNodeType(node.id));
 			}
 			return;
@@ -169,6 +173,14 @@ export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new F
 				flowGraph.addEdge(functionVertex(node.value), propertyVertex(node.key));
 			}
 			return;
+		}
+		if (isExpressionStatement(node)) {
+			if (isUpdateExpresion(node.expression)) {
+				flowGraph.addEdge(getVertexForNodeType(node.expression.argument), getVertexForNodeType(node.expression));
+			}
+			if (isBinaryExpression(node.expression) && isIdentifier(node.expression.left)) {
+				flowGraph.addEdge(getVertexForNodeType(node.expression.left), getVertexForNodeType(node.expression));
+			}
 		}
 	});
 

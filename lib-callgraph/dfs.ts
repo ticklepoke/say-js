@@ -2,14 +2,14 @@ import { namedTypes as n } from 'ast-types';
 import { Graph, nodeToString } from './graph';
 import { Vertex } from './vertex';
 
-type NodePred = (node: n.Node) => boolean;
+type NodePredicate = (node: n.Node) => boolean;
 type Reachability = {
 	getReachable: (s: Vertex) => Vertex[];
 	iterReachable: (s: Vertex, cb: (n: Vertex) => void) => void;
 	reaches: (s: Vertex, d: Vertex) => boolean;
 };
 
-export function makeReachability(graph: Graph, nodePred: NodePred): Reachability {
+export function makeReachability(graph: Graph, nodePredicate: NodePredicate): Reachability {
 	const enumNodes: Vertex[] = [];
 
 	const nodes = graph.getNodes();
@@ -39,12 +39,12 @@ export function makeReachability(graph: Graph, nodePred: NodePred): Reachability
 	function visit1(i: number) {
 		visited[i] = 1;
 
-		if (!nodePred || nodePred(enumNodes[i])) {
+		if (!nodePredicate || nodePredicate(enumNodes[i])) {
 			const succ = graph.succ(enumNodes[i]);
 
 			for (let j = 0; j < succ.length; j++) {
 				const index = stringToReachabilityId[nodeToString(succ[j])];
-				if (nodePred && !nodePred(succ[j])) continue;
+				if (nodePredicate && !nodePredicate(succ[j])) continue;
 				if (m[i].has(index) || t[i].has(index)) continue;
 
 				if (visited[index] == 0) visit1(index);
@@ -82,12 +82,12 @@ export function makeReachability(graph: Graph, nodePred: NodePred): Reachability
 	function visit2(i: number) {
 		visited2[i] = 1;
 
-		if (!nodePred || nodePred(enumNodes[i])) {
+		if (!nodePredicate || nodePredicate(enumNodes[i])) {
 			const succ = graph.succ(enumNodes[i]);
 
 			for (let j = 0; j < succ.length; j++) {
 				const index = stringToReachabilityId[nodeToString(succ[j])];
-				if (nodePred && !nodePred(succ[j])) return;
+				if (nodePredicate && !nodePredicate(succ[j])) return;
 				if (visited2[index] == 0 && t[index].size !== 0) visit2(index);
 			}
 		}

@@ -201,6 +201,18 @@ export function isImportNamespaceSpecifier(
 	return node.type === 'ImportNamespaceSpecifier';
 }
 
+export function isExpressionStatement(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.ExpressionStatement> {
+	return node.type === 'ExpressionStatement';
+}
+
+export function isUpdateExpresion(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.UpdateExpression> {
+	return node.type === 'UpdateExpression';
+}
+
+export function isBinaryExpression(node: ExtendedNode | n.Node): node is ExtendedNodeT<n.BinaryExpression> {
+	return node.type === 'BinaryExpression';
+}
+
 // Non type narrowing utils below
 
 export function isModuleExports(node: ExtendedNode): boolean {

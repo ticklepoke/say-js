@@ -1,8 +1,7 @@
-function bar() {
+function foo() {
 	let a = 1;
-	bar(a);
-	return 1;
+	a = 2;
+	foo(a);
+	a++;
+	a + 1;
 }
-bar();
-
-module.exports = bar;
