@@ -1,5 +1,6 @@
 import { buildCallGraph, CallGraphData } from '@lib-callgraph/callGraph';
-import { Vertex, isCalleeVertex, isFunctionVertex, isNativeVertex } from '@lib-callgraph/vertex';
+import { Graph } from '@lib-callgraph/graph';
+import { Vertex, isCalleeVertex, isFunctionVertex, isNativeVertex, prettyPrintVertex } from '@lib-callgraph/vertex';
 import { astFromFiles } from '@lib-frontend/ast';
 import { enclosingFunctionName, functionName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';
@@ -60,7 +61,7 @@ export default class Driver {
 			callGraph.edges.iter((call, fn) => {
 				result.push(Driver.buildBinding(call, fn));
 			});
-			return result;
+			return { result, edges: callGraph.edges };
 		}
 
 		const res = flow(E.map(addBindings), E.map(buildCallGraph), E.map(collectEdges), E.chain(Driver.writeJSON))(ast);
@@ -74,11 +75,16 @@ export default class Driver {
 		Driver.outputFileName = outputFileName;
 	}
 
-	private static writeJSON(result: RecursivePartial<Edge>[]) {
+	private static writeJSON(props: { result: RecursivePartial<Edge>[]; edges: Graph }) {
+		const { result, edges } = props;
 		return E.tryCatch(
 			() => {
 				if (Driver.outputFileName) {
 					fs.writeFileSync(Driver.outputFileName, JSON.stringify(result, null, 2));
+				} else {
+					edges.iter((from, to) => {
+						console.log(prettyPrintVertex(from) + ' -> ' + prettyPrintVertex(to));
+					});
 				}
 				return result;
 			},
