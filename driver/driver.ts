@@ -58,8 +58,8 @@ export default class Driver {
 
 		function collectEdges(callGraph: CallGraphData) {
 			const result: RecursivePartial<Edge>[] = [];
-			callGraph.edges.iter((call, fn) => {
-				result.push(Driver.buildBinding(call, fn));
+			callGraph.edges.iter((call, fn, annotation) => {
+				result.push(Driver.buildBinding(call, fn, annotation));
 			});
 			return { result, edges: callGraph.edges };
 		}
@@ -95,7 +95,7 @@ export default class Driver {
 		);
 	}
 
-	private static buildBinding(u: Vertex, v: Vertex): RecursivePartial<Edge> {
+	private static buildBinding(u: Vertex, v: Vertex, relation = 'UnknownRelation'): RecursivePartial<Edge> {
 		const edge = {
 			source: {
 				label: undefined,
@@ -111,6 +111,7 @@ export default class Driver {
 				end: { row: undefined, column: undefined },
 				range: { start: undefined, end: undefined },
 			},
+			relation,
 		};
 
 		Driver.populateNode(edge.source, u);

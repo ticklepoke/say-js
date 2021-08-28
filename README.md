@@ -96,7 +96,8 @@ bar();
         "start": 0,
         "end": 29
       }
-    }
+    },
+    "relation": "FunctionCall"
   }
 ]
 ```

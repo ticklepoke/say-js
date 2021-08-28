@@ -15,6 +15,7 @@ describe('Integration', () => {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
 						label: 'bar',
 					},
+					relation: 'FunctionCall',
 				},
 			],
 		],
@@ -30,6 +31,7 @@ describe('Integration', () => {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
 						label: 'bar',
 					},
+					relation: 'FunctionCall',
 				},
 				{
 					source: {
@@ -40,6 +42,7 @@ describe('Integration', () => {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
 						label: 'bar',
 					},
+					relation: 'FunctionCall',
 				},
 			],
 		],
@@ -50,6 +53,7 @@ describe('Integration', () => {
 		const expectation = expected.map((e) => ({
 			source: expect.objectContaining(e.source),
 			target: expect.objectContaining(e.target),
+			relation: e.relation,
 		}));
 		expect(res).toEqual(expectation);
 	});

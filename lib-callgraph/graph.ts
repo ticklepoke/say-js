@@ -94,10 +94,12 @@ export function nodeToString(node: Vertex): string {
 export class Graph {
 	graph: BaseGraph;
 	nodePairings: { [key: string]: Vertex };
+	edgeAnnotations: { [key: string]: string };
 
 	constructor() {
 		this.graph = new BaseGraph();
 		this.nodePairings = {};
+		this.edgeAnnotations = {};
 	}
 
 	addNode(node: Vertex): void {
@@ -109,16 +111,24 @@ export class Graph {
 		this.graph.addNode(nodeToString(node));
 	}
 
-	addEdge(from: Vertex, to: Vertex): void {
+	addEdge(from: Vertex, to: Vertex, annotation?: string): void {
 		this.addNode(from);
 		this.addNode(to);
 
 		this.graph.addEdge(nodeToString(from), nodeToString(to));
+
+		if (annotation) {
+			this.edgeAnnotations[nodeToString(from) + ' -> ' + nodeToString(to)] = annotation;
+		}
 	}
 
-	addEdges(from: Vertex, tos: Vertex[]): void {
+	addEdges(from: Vertex, tos: Vertex[], annotations?: string[]): void {
 		for (let i = 0; i < tos.length; i++) {
-			this.addEdge(from, tos[i]);
+			if (annotations) {
+				this.addEdge(from, tos[i], annotations[i]);
+			} else {
+				this.addEdge(from, tos[i]);
+			}
 		}
 	}
 
@@ -158,14 +168,15 @@ export class Graph {
 		return false;
 	}
 
-	iter(callback: (u: Vertex, v: Vertex) => void): void {
+	iter(callback: (u: Vertex, v: Vertex, annotation?: string) => void): void {
 		const nodes = this.graph.nodes();
 		for (const u of nodes) {
 			for (const v of this.graph.succ(u)) {
 				if (O.isSome(v)) {
 					const uNode = this.nodePairings[u];
 					const vNode = this.nodePairings[v.value];
-					callback(uNode, vNode);
+					const annotation = this.edgeAnnotations[u + ' -> ' + v.value];
+					callback(uNode, vNode, annotation);
 				}
 			}
 		}

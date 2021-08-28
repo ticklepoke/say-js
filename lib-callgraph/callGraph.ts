@@ -3,6 +3,7 @@ import { CallType, ExtendedNode, FunctionType } from '@lib-frontend/astTypes';
 import { createExtendedNodeT } from '@lib-frontend/astUtils';
 import { collectExportsImports, connectImports } from '@utils/modules';
 import { addNativeFunctionEdges } from '@utils/natives';
+import { TSFixMe } from '@utils/types';
 import { namedTypes as n } from 'ast-types';
 import { makeReachability } from './dfs';
 import {
@@ -40,7 +41,17 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 			if (node.type === 'UnknownVertex') {
 				escaping.push(fn);
 			} else if (isCalleeVertex(node)) {
-				edges.addEdge(node, fn);
+				edges.addEdge(node, fn, 'FunctionCall');
+			}
+		});
+	};
+
+	type VariableDeclaratorVertex = Vertex & TSFixMe;
+	const processVariableVertex = (v: VariableDeclaratorVertex) => {
+		const r = reach.getReachable(v);
+		r.forEach((node) => {
+			if (node.type === 'IdentifierVertex') {
+				edges.addEdge(node, v, 'VariableUsage');
 			}
 		});
 	};
