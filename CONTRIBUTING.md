@@ -9,6 +9,7 @@ Callgraph-generator is organised into separate components that depend on each ot
 ## TODO
 
 - [ ] semantic-release
+- [ ] extract variable declaration - identifier for callgraph
 
 ## Building and Packaging
 

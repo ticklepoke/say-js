@@ -53,6 +53,15 @@ const edges = sayjs.build();
 
 ## Output JSON
 
+The following source code will generate the JSON file below:
+
+```js
+function bar() {
+	return 1;
+}
+bar();
+```
+
 ```json
 [
   {
