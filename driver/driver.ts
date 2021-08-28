@@ -1,8 +1,17 @@
 import { buildCallGraph, CallGraphData } from '@lib-callgraph/callGraph';
 import { Graph } from '@lib-callgraph/graph';
-import { Vertex, isCalleeVertex, isFunctionVertex, isNativeVertex, prettyPrintVertex } from '@lib-callgraph/vertex';
+import {
+	Vertex,
+	isCalleeVertex,
+	isFunctionVertex,
+	isNativeVertex,
+	prettyPrintVertex,
+	isVariableVertex,
+	isVariableDeclaratorVertex,
+} from '@lib-callgraph/vertex';
 import { astFromFiles } from '@lib-frontend/ast';
-import { enclosingFunctionName, functionName } from '@lib-frontend/astUtils';
+import { isIdentifier } from '@lib-frontend/astTypes';
+import { enclosingFunctionName, functionName, variableDeclaratorName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';
 import { collectFiles } from '@utils/files';
 import { panic } from '@utils/macros';
@@ -161,6 +170,40 @@ export default class Driver {
 			return E.right(n);
 		}
 
-		return E.left('Unknown vertex: ' + JSON.stringify(v));
+		if (isVariableVertex(v)) {
+			const { node } = v;
+			if (!isIdentifier(node)) {
+				panic('[driver::populateNode] only identifier is supported');
+				return E.left('Invalid Identifier Type');
+			}
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			const _n = n as Node;
+			_n.label = node.name;
+			_n.file = node.attributes.enclosingFile ?? '';
+			_n.start = { row: node.loc.start.line, column: node.loc.start.column };
+			_n.end = { row: node.loc.end.line, column: node.loc.end.column };
+			_n.range = { start: node.range[0], end: node.range[1] };
+			return E.right(_n);
+		}
+
+		if (isVariableDeclaratorVertex(v)) {
+			const { variableDeclarator: node } = v;
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			const _n = n as Node;
+			_n.label = variableDeclaratorName(node);
+			_n.file = node.attributes.enclosingFile ?? '';
+			_n.start = { row: node.loc.start.line, column: node.loc.start.column };
+			_n.end = { row: node.loc.end.line, column: node.loc.end.column };
+			_n.range = { start: node.range[0], end: node.range[1] };
+			return E.right(_n);
+		}
+
+		return E.left('Unknown vertex: ' + JSON.stringify(v.type));
 	}
 }

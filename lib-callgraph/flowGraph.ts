@@ -144,6 +144,8 @@ export function addIntraProcedureEdges(ast: ProgramCollection, flowGraph = new F
 		if (isVariableDeclarator(node)) {
 			if (isIdentifier(node.id) && node.init) {
 				flowGraph.addEdge(getVertexForNodeType(node.init), getVertexForNodeType(node.id));
+				flowGraph.addEdge(getVertexForNodeType(node), getVertexForNodeType(node.id));
+				//flowGraph.addEdge(getVertexForNodeType(node.id), getVertexForNodeType(node));
 			}
 			return;
 		}
@@ -214,6 +216,9 @@ export function getVertexForNodeType(node: ExtendedNode | n.Node): Vertex {
 				return propertyVertex(_node.property);
 			}
 		}
+	}
+	if (isVariableDeclarator(_node)) {
+		return variableDeclaratorVertex(_node);
 	}
 	return expressionVertex(_node);
 }
@@ -472,4 +477,21 @@ export function resultVertex(node: ExtendedNodeT<n.CallExpression | n.NewExpress
 		},
 	};
 	return node.attributes.resultVertex;
+}
+
+export function variableDeclaratorVertex(node: ExtendedNodeT<n.VariableDeclarator>): Vertex {
+	if (!node.attributes) {
+		node.attributes = {};
+	}
+	if (node.attributes.variableDeclaratorVertex) {
+		return node.attributes.variableDeclaratorVertex;
+	}
+	node.attributes.variableDeclaratorVertex = {
+		type: 'VariableDeclaratorVertex',
+		variableDeclarator: node,
+		attributes: {
+			prettyPrint: () => 'VarDecl(' + prettyPrintPosition(node) + ')',
+		},
+	};
+	return node.attributes.variableDeclaratorVertex;
 }

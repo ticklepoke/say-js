@@ -3,7 +3,6 @@ import { CallType, ExtendedNode, FunctionType } from '@lib-frontend/astTypes';
 import { createExtendedNodeT } from '@lib-frontend/astUtils';
 import { collectExportsImports, connectImports } from '@utils/modules';
 import { addNativeFunctionEdges } from '@utils/natives';
-import { TSFixMe } from '@utils/types';
 import { namedTypes as n } from 'ast-types';
 import { makeReachability } from './dfs';
 import {
@@ -17,7 +16,14 @@ import {
 	unknownVertex,
 } from './flowGraph';
 import { FlowGraph, Graph } from './graph';
-import { isCalleeVertex, isFunctionVertex, Vertex } from './vertex';
+import {
+	isCalleeVertex,
+	isFunctionVertex,
+	isVariableDeclaratorVertex,
+	isVariableVertex,
+	VariableDeclaratorVertex,
+	Vertex,
+} from './vertex';
 
 export type CallGraphData = {
 	edges: Graph;
@@ -46,11 +52,10 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 		});
 	};
 
-	type VariableDeclaratorVertex = Vertex & TSFixMe;
 	const processVariableVertex = (v: VariableDeclaratorVertex) => {
 		const r = reach.getReachable(v);
 		r.forEach((node) => {
-			if (node.type === 'IdentifierVertex') {
+			if (isVariableVertex(node)) {
 				edges.addEdge(node, v, 'VariableUsage');
 			}
 		});
@@ -59,6 +64,8 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 	flowGraph.iterNodes((n) => {
 		if (isFunctionVertex(n)) {
 			processFunctionVertex(n);
+		} else if (isVariableDeclaratorVertex(n)) {
+			processVariableVertex(n);
 		}
 	});
 

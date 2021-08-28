@@ -1,4 +1,12 @@
-import { ExtendedNode, ExtendedNodeT, FunctionType, isBlockStatement, isReturnStatement } from '@lib-frontend/astTypes';
+import {
+	ExtendedNode,
+	ExtendedNodeT,
+	FunctionType,
+	isBlockStatement,
+	isIdentifier,
+	isReturnStatement,
+} from '@lib-frontend/astTypes';
+import { panic } from '@utils/macros';
 import { namedTypes as n } from 'ast-types';
 
 function basename(filename: string) {
@@ -25,6 +33,24 @@ export function enclosingFunctionName(enclosingFn: FunctionType | undefined): st
 		return 'anon';
 	} else {
 		return enclosingFn.id.name;
+	}
+}
+
+export function variableDeclaratorName(varDecl: n.VariableDeclarator): string {
+	if (isIdentifier(varDecl.id)) {
+		return varDecl.id.name + ' = ...';
+	} else {
+		panic('[astUtils::variableDeclaratorName] Unsupported var decl name');
+		return '';
+	}
+}
+
+export function variableIdentifierName(variable: n.Node): string {
+	if (isIdentifier(variable)) {
+		return variable.name;
+	} else {
+		panic('[astUtils::variableIdentifierName] Unsupported var decl name');
+		return '';
 	}
 }
 

@@ -17,6 +17,17 @@ describe('Integration', () => {
 					},
 					relation: 'FunctionCall',
 				},
+				{
+					source: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a',
+					},
+					target: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a = ...',
+					},
+					relation: 'VariableUsage',
+				},
 			],
 		],
 		[
@@ -44,12 +55,24 @@ describe('Integration', () => {
 					},
 					relation: 'FunctionCall',
 				},
+				{
+					source: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a',
+					},
+					target: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a = ...',
+					},
+					relation: 'VariableUsage',
+				},
 			],
 		],
 	])('%s', (pathName, expected) => {
 		Driver.setFiles(pathName);
 		const res = Driver.build();
 
+		//console.log(res);
 		const expectation = expected.map((e) => ({
 			source: expect.objectContaining(e.source),
 			target: expect.objectContaining(e.target),
