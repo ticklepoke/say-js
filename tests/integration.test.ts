@@ -1,5 +1,4 @@
 import Driver from '@driver/driver';
-import { prettyPrint } from '@utils/console';
 import path from 'path';
 
 describe('Integration', () => {
@@ -73,12 +72,11 @@ describe('Integration', () => {
 		Driver.setFiles(pathName);
 		const res = Driver.build();
 
-		//console.log(res);
 		const expectation = expected.map((e) => ({
 			source: expect.objectContaining(e.source),
 			target: expect.objectContaining(e.target),
 			relation: e.relation,
 		}));
-		//expect(res).toEqual(expectation);
+		expect(res).toEqual(expectation);
 	});
 });
