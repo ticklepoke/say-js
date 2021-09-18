@@ -79,7 +79,6 @@ describe('Integration', () => {
 			target: expect.objectContaining(e.target),
 			relation: e.relation,
 		}));
-		prettyPrint(res);
 		//expect(res).toEqual(expectation);
 	});
 });
