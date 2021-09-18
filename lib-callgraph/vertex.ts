@@ -78,6 +78,7 @@ export function isVariableDeclaratorVertex(v: Vertex): v is VariableDeclaratorVe
 }
 
 export function isNodeVertex(v: Vertex): v is NodeVertex {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	return !!(v as any).node;
 }
 

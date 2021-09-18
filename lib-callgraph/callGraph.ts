@@ -19,6 +19,7 @@ import { FlowGraph, Graph } from './graph';
 import {
 	isCalleeVertex,
 	isFunctionVertex,
+	isNodeVertex,
 	isVariableDeclaratorVertex,
 	VariableDeclaratorVertex,
 	Vertex,
@@ -53,11 +54,11 @@ function extractCallGraph(flowGraph: FlowGraph): CallGraphData {
 
 	const processVariableDeclarator = (v: VariableDeclaratorVertex) => {
 		const r = reach.getReachable(v);
-		r.forEach((node: any) => {
+		r.forEach((node: Vertex) => {
 			if (
-				node.node &&
-				node.node.loc.start.line === v.variableDeclarator.loc?.start.line &&
-				node.node.range[0] === v.variableDeclarator.range?.[0]
+				isNodeVertex(node) &&
+				node.node.loc?.start.line === v.variableDeclarator.loc?.start.line &&
+				node.node.range?.[0] === v.variableDeclarator.range?.[0]
 			) {
 				return;
 			}
