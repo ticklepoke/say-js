@@ -8,14 +8,25 @@ describe('Integration', () => {
 			[
 				{
 					source: {
-						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-						label: 'global',
+						file: undefined,
+						label: undefined,
 					},
 					target: {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-						label: 'bar',
+						label: 'a = ...',
 					},
-					relation: 'FunctionCall',
+					relation: 'VariableReference',
+				},
+				{
+					source: {
+						file: undefined,
+						label: undefined,
+					},
+					target: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a = ...',
+					},
+					relation: 'VariableReference',
 				},
 				{
 					source: {
@@ -26,48 +37,21 @@ describe('Integration', () => {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
 						label: 'a = ...',
 					},
-					relation: 'VariableUsage',
+					relation: 'VariableReference',
+				},
+				{
+					source: {
+						file: undefined,
+						label: undefined,
+					},
+					target: {
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a = ...',
+					},
+					relation: 'VariableReference',
 				},
 			],
 		],
-		//[
-		//['./tests/__fixtures__/simpleImport.js', './tests/__fixtures__/simpleCall.js'],
-		//[
-		//{
-		//source: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-		//label: 'global',
-		//},
-		//target: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-		//label: 'bar',
-		//},
-		//relation: 'FunctionCall',
-		//},
-		//{
-		//source: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleImport.js'),
-		//label: 'global',
-		//},
-		//target: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-		//label: 'bar',
-		//},
-		//relation: 'FunctionCall',
-		//},
-		//{
-		//source: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-		//label: 'a',
-		//},
-		//target: {
-		//file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
-		//label: 'a = ...',
-		//},
-		//relation: 'VariableUsage',
-		//},
-		//],
-		//],
 	])('%s', (pathName, expected) => {
 		Driver.setFiles(pathName);
 		const res = Driver.build();
