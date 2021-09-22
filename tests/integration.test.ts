@@ -8,8 +8,8 @@ describe('Integration', () => {
 			[
 				{
 					source: {
-						file: undefined,
-						label: undefined,
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a',
 					},
 					target: {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
@@ -19,8 +19,8 @@ describe('Integration', () => {
 				},
 				{
 					source: {
-						file: undefined,
-						label: undefined,
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a++',
 					},
 					target: {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
@@ -41,8 +41,8 @@ describe('Integration', () => {
 				},
 				{
 					source: {
-						file: undefined,
-						label: undefined,
+						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
+						label: 'a',
 					},
 					target: {
 						file: path.resolve(__dirname, '../../tests/__fixtures__/simpleCall.js'),
