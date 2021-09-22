@@ -21,7 +21,7 @@
 		"docs:diagrams:gen": "./scripts/gen-diagrams.sh",
 		"types:check": "tsc --noEmit",
 		"tsc": "tsc",
-		"gulp": "gulp",
+		"build": "gulp",
 		"semantic-release": "semantic-release"
 	},
 	"devDependencies": {
