@@ -56,6 +56,10 @@ export type GlobalVertex = Vertex & {
 	name: string;
 };
 
+export type ExpressionVertex = Vertex & {
+	node: ExtendedNode;
+};
+
 // Type narrowing utils below
 export function isCalleeVertex(v: Vertex): v is CalleeVertex {
 	return v.type === 'CalleeVertex';
@@ -88,6 +92,10 @@ export function isArgumentVertex(v: Vertex): v is ArgumentVertex {
 
 export function isGlobalVertex(v: Vertex): v is GlobalVertex {
 	return v.type === 'GlobalVertex';
+}
+
+export function isExpressionVertex(v: Vertex): v is ExpressionVertex {
+	return v.type === 'ExpressionVertex';
 }
 
 export function prettyPrintVertex(v: Vertex): string | undefined {
