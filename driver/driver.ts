@@ -9,9 +9,16 @@ import {
 	isVariableVertex,
 	isVariableDeclaratorVertex,
 	isArgumentVertex,
+	isExpressionVertex,
 } from '@lib-callgraph/vertex';
 import { astFromFiles } from '@lib-frontend/ast';
-import { isCallExpression, isIdentifier } from '@lib-frontend/astTypes';
+import {
+	isAssignmentExpression,
+	isBinaryExpression,
+	isCallExpression,
+	isIdentifier,
+	isUpdateExpresion,
+} from '@lib-frontend/astTypes';
 import { enclosingFunctionName, functionName, variableDeclaratorName } from '@lib-frontend/astUtils';
 import { addBindings } from '@lib-frontend/bindings';
 import { collectFiles } from '@utils/files';
@@ -69,7 +76,12 @@ export default class Driver {
 		function collectEdges(callGraph: CallGraphData) {
 			const result: RecursivePartial<Edge>[] = [];
 			callGraph.edges.iter((call, fn, annotation) => {
-				result.push(Driver.buildBinding(call, fn, annotation));
+				const res = Driver.buildBinding(call, fn, annotation);
+				if (E.isRight(res)) {
+					result.push(res.right);
+				} else {
+					panic(E.right.toString());
+				}
 			});
 			return { result, edges: callGraph.edges };
 		}
@@ -78,6 +90,8 @@ export default class Driver {
 
 		if (E.isRight(res)) {
 			return res.right;
+		} else {
+			panic('Unable to build output');
 		}
 	}
 
@@ -105,7 +119,11 @@ export default class Driver {
 		);
 	}
 
-	private static buildBinding(u: Vertex, v: Vertex, relation = 'UnknownRelation'): RecursivePartial<Edge> {
+	private static buildBinding(
+		u: Vertex,
+		v: Vertex,
+		relation = 'UnknownRelation'
+	): E.Either<null, RecursivePartial<Edge>> {
 		const edge = {
 			source: {
 				label: undefined,
@@ -124,9 +142,12 @@ export default class Driver {
 			relation,
 		};
 
-		Driver.populateNode(edge.source, u);
-		Driver.populateNode(edge.target, v);
-		return edge;
+		const resS = Driver.populateNode(edge.source, u);
+		const resT = Driver.populateNode(edge.target, v);
+		if (E.isLeft(resS) || E.isLeft(resT)) {
+			return E.left(null);
+		}
+		return E.right(edge);
 	}
 
 	private static populateNode(n: RecursivePartial<Node>, v: Vertex): E.Either<string, RecursivePartial<Node>> {
@@ -220,6 +241,52 @@ export default class Driver {
 			_n.range = { start: node.range[0], end: node.range[1] };
 			return E.right(_n);
 		}
+
+		if (isExpressionVertex(v) && (isAssignmentExpression(v.node) || isBinaryExpression(v.node))) {
+			const { node } = v;
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+
+			const _n = n as Node;
+			if (!isIdentifier(node.left)) {
+				panic('[driver::populateNode] Only identifiers supported');
+				return E.left('Unsupported node');
+			}
+			if (!node.left.loc || !node.left.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+			_n.label = node.left.name;
+			_n.file = node.left.attributes.enclosingFile ?? '';
+			_n.start = { row: node.left.loc.start.line, column: node.left.loc.start.column };
+			_n.end = { row: node.left.loc.end.line, column: node.left.loc.end.column };
+			_n.range = { start: node.left.range[0], end: node.left.range[1] };
+			return E.right(_n);
+		}
+
+		if (isExpressionVertex(v) && isUpdateExpresion(v.node)) {
+			const { node } = v;
+			if (!node.loc || !node.range) {
+				panic('[driver::populateNode] loc or range missing from node');
+				return E.left('Missing Node');
+			}
+
+			if (!isIdentifier(node.argument)) {
+				panic('[driver::populateNode] Argument can only be identifier');
+				return E.left('Unsupported Node');
+			}
+
+			const _n = n as Node;
+			_n.label = node.argument.name + node.operator;
+			_n.file = node.attributes.enclosingFile ?? '';
+			_n.start = { row: node.loc.start.line, column: node.loc.start.column };
+			_n.end = { row: node.loc.end.line, column: node.loc.end.column };
+			_n.range = { start: node.range[0], end: node.range[1] };
+			return E.right(_n);
+		}
+
 		return E.left('Unknown vertex: ' + JSON.stringify(v.type));
 	}
 }
