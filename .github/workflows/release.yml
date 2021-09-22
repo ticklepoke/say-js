@@ -22,7 +22,7 @@ jobs:
         run: yarn install
 
       - name: Build Dist
-        run: yarn build
+        run: yarn gulp
 
       - run: cp -r package.json ./dist
 
