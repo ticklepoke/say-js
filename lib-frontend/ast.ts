@@ -197,7 +197,10 @@ function preProcess(root: ProgramCollection) {
 			const prevEnclosingFn = enclosingFunction;
 			enclosingFunction = node;
 			if (!isArrowFunctionExpression(node)) {
-				traverse(node.id as ExtendedNode);
+				if (node.id) {
+					// @ts-expect-error handwaving here
+					traverse(node.id as ExtendedNode);
+				}
 			}
 			for (const p of node.params) {
 				traverse(createExtendedNode(p));
